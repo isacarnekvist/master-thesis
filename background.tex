@@ -1,62 +1,89 @@
 \section{Background}
 
-Recently a number of papers were published were robots learn manipulation tasks
-through shared experiences
-\cite{gu2016deep,finn2016deep,yahya2016collective,chebotar2016path}. It would
-be interesting to see whether these methods can be used and altered to
-generalize for other contexts such as changing the type of manipulators and
-performing different tasks. The use cases are for robotic manipulation with
+\subsection{Objective}
+
+The interest in conducting this thesis research started with a series of
+articles published by researchers at Google in their research blog
+\cite{gu2016deep,finn2016deep,yahya2016collective,chebotar2016path}. The main
+theme in these articles was robotic manipulation learned by gathering
+experience. These articles will be presented in more detail below and extended
+during the pilot study. In one of these articles tasks are learned from scratch without
+the need for initializing by demonstration. All poses of targets and arms are
+known by attached equipment though in this experiment. It would be interesting
+to incorporate estimation of poses from visual feedback to make it more
+end-to-end. The use cases for this would be robotic manipulation tasks with
 camera as feedback where exact relative positions of objects, manipulators, and
 sensors need not be fixed, also where resources exists to use several robots
-for speeding up the learning process. The experiments needed for this thesis would be held at the
-Robotics, Perception, and Learning lab at KTH.
+for speeding up the learning process. Possible readers might be other
+researchers working with end-to-end machine learning for robotic manipulation.
+Other interested parties might be producers of products where repetitive tasks
+are a part of the production chain and variations in these make it hard for
+robots to be easily programmed for these tasks.
 
-This study would mainly require choice, implementation and scientific
-evaluation of parallelized machine learning algorithms, coding for robotic
-manipulation, and ground truth generation. The machine learning algorithms
-would include both supervised learning for computer vision and reinforcement
-learning for performing tasks. This makes the project not only suitable for a
-computer science degree project, but also for the master program in machine
-learning.
+\subsection{Pilot study}
+
+The following sections are the preliminary sources of information that was the
+initial spark for this thesis as mentioned above. How to re-implement these
+articles is not self-contained, so the pilot would necessarily need to also
+include reading into articles from the references of these. Reading of these
+initial articles would be needed to motivate an appropriate method, and then
+further research would be done with the purpose of gaining all the information
+needed to implement such a solution. The thesis study will be conducted at RPL
+at KTH with the interest originally mainly being to dig into these articles and
+develop something further.
+
+\subsubsection{Motion planning by ''Deep visual foresight''}
+
+This article \cite{finn2016deep} trains a convolutional neural network on
+images together with motion as inputs to predict how the image will change due
+to that motion. This is later used to plan movement of objects to some target
+pose.
+
+\subsubsection{Path Integral Guided Policy Search}
+
+In this article \cite{chebotar2016path}, the authors extend Guided Policy
+Search and demonstrate two manipulation tasks. These are initialized from
+demonstrations. To be able to comprehend this article, referenced articles
+\cite{levine2016end,theodorou2010generalized,montgomery2016guided} would have
+to be read as well.
+
+\subsubsection{Collective Robot Reinforcement Learning with Distributed
+               Asynchronous Guided Policy Search}
+
+This article \cite{yahya2016collective} distributes learning of
+door opening across several robots. The exact nature of the tasks
+are varied across robots to increase robustness. The learning is
+initialized from demonstration.
+
+\subsubsection{Parallelized training without prior demonstration}
+
+This article \cite{gu2016deep} shows several robotic manipulation tasks where
+learning is parallelized across platforms, and they do not require previous
+demonstrations.  For this article, I would need to read up on an algorithm
+called Normalized Advantage Function (NAF) \cite{gu2016continuous}.
+
+
+\subsubsection{Reinforcement learning}
+These articles mentioned above naturally deals with reinforcement vocabulary and
+assumes knowledge in this area. Therefore the pilot would include studying
+general literature in this area.
+
+
+\subsection{Problem statement}
+
+Manipulation tasks that seem trivial to a human can be really tricky to learn
+for robots, especially from scratch without human demonstration due to the high
+sample complexity. Recent research suggests ways to do this but are based on
+that you know the poses of objects and the end-effector. For some scenarios
+these are dynamic and non-trivial to find out. There seems to be no known, or
+at most a few examples, of end-to-end methods for learning and performing tasks
+of a reinforcement learning nature.
 
 \subsection{Research question}
 
-How can deep reinforcement learning be used for performing manipulation where
-multiple robots are used in parallel for training?
+How can deep reinforcement learning be used for learning and performing dynamic
+manipulation tasks with unknown poses in an effective manner.
 
-\section{Method}
-
-A manipulation task would be set up with multiple cameras, computers, and
-robotic arms. Building on the ideas mainly from the articles
-\cite{gu2016deep,finn2016deep,yahya2016collective,chebotar2016path} I would try
-out this with robots that are different in the way their motion is controlled
-(torque vs. cartesian). The algoritms for controlling the arm would be
-end-to-end, i.e. that the entire pipeline from camera data to control signals
-to the arm would be learned.
-
-\section{Limitations}
-
-A first part of the work would to pre-train a part of the neural network for
-pose estimation (and training data generation). If this turns out to need
-a lot of time, the method for accomplishing the manipulation task might be
-chosen to better match the remaining time.
-
-
-\section{Students background}
-
-I have a bachelor's degree in computer science and finishing the machine
-learning master program. I have taken both first cycle and second cycle
-statistics courses, several machine learning courses including computer vision
-and several kinds of supervised- and unsupervised learning. I have experience
-with implementing convolutional and regular neural networks from courses and
-from working. I have also recently finished a course in robotics and autonomous
-systems. I have no courses remaining to be finished except those that are
-planned until the start of the thesis project.
-
-The courses that are ongoing and required for graduating are:
-\begin{itemize}
-    \item Introduction to the Philosophy of Science and Research Methodology (DA2205)
-    \item Program Integrating Course in Machine Learning (DD2301)
-    \item Robotics and Autonomous Systems (DD2425)
-    \item Statistical Methods in Applied Computer Science (DD2447)
-\end{itemize}
+\subsection{Expected scientific results}
+If all goes well, previous results are verified in new contexts. Also
+they are extended to also handle unknown target and manipulator poses.
