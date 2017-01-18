@@ -1,13 +1,13 @@
 build: spell tex bib tex tex
 
 view: build
-	open rapport.pdf
+	open report.pdf
 
 bib:
-	bibtex rapport
+	bibtex report
 
 tex:
-	xelatex rapport.tex 
+	xelatex report.tex 
 
 spell:
 	for f in *.tex; do aspell -d en_US -c $$f; done
