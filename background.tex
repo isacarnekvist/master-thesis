@@ -25,6 +25,69 @@ manipulation. Other interested parties might also be manufacturers where
 repetitive tasks are a part of the production chain and variations in these
 make it hard for robots to be easily programmed for those tasks.
 
+\subsection{Reinforcement learning}
+
+This entire section is a descriptions of key concepts from a book on
+Reinforcement Learning by Sutton and Barto \cite{sutton1998reinforcement}.
+
+\subsubsection{The three tiers of machine learning}
+
+In reinforcement learning (RL) an agent interacts with an environment and tries
+to maximize some \textit{reward}, or rather the total amount of reward received
+over time. To maximize the reward in the long run might require short-time
+losses, making the problem more complex than just maximizing for one step at a
+time.  To find a good strategy, commonly referred to as a \textit{policy}, the
+agent uses its experience to make better decisions, this is referred to as
+\textit{exploitation}. But, it must also find a balance between exploitation
+and to also try out new things, i. e. \textit{exploration}. These things are
+specific for RL and therefore distinguishes it from supervised and unsupervised
+learning making it a third piece of machine learning.
+
+\subsubsection{Main elements of RL}
+
+A policy is a function from the state of the environment to an action, i. e.
+the function that chooses what to do under any state. A reward is an immediate
+signal given by the environment that the agent receives after each interaction.
+Since a reward is only short-term a \textit{value function} tries to estimate
+the total amount of reward that will be given in the long run when taking some
+action. To enable planning of actions in the environment, RL algorithms
+sometimes uses a \textit{model} in order to try out actions in this before
+making decisions. This is usually referred to as model-based RL in contrast to
+model-free.
+
+\subsubsection{Finite Markov Decision Processes}
+
+In a RL scenario where the environment has a finite number of states, there is
+a finite number of actions, and the Markov property holds is called a
+\textit{finite Markov Decision Process} (finite MDP). Let $S_t$ be the state at
+time $t$, $R_t$ be the reward at time $t$, and $A_t$ the action at time $t$.
+The interaction between an agent and its environment in RL is that the agent at
+each time step $t$ reads the environment and takes an action. The environment
+changes, maybe stochastically, by responding with a new state and a reward at
+time $t+1$. The dynamics of a finite MDP is completely specified by the
+probability distribution:
+
+\begin{equation}
+    p(s', r|s, a) = P(S_{t+1} = s', R_{t+1} = r | S_t = s, A_t = a)
+\end{equation}
+
+State-value function (TODO: define $\gamma$ and purpose, define/skip $G$ also?):
+\begin{equation}
+    v_\pi(s) = \mathbb{E}_\pi\left[G_t|S_t=s\right] = \mathbb{E}_\pi\left[\sum_{k=0}^\infty \gamma^k R_{t+k+1}|S_t=s\right]
+\end{equation}
+
+Action-value function:
+\begin{equation}
+    q_\pi(s, a) = \mathbb{E}_\pi\left[G_t|S_t=s,A_t=a\right] = \mathbb{E}_\pi\left[\sum_{k=0}^\infty \gamma^k R_{t+k+1}|S_t=s,A_t=a\right]
+\end{equation}
+
+
+\subsubsection{Q-Learning}
+TODO: Mention somewhere \textit{on-policy} and \textit{off-policy}.
+\begin{equation}
+    Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \left[ R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t) \right]
+\end{equation}
+
 \subsection{Pilot study}
 
 The following sections are the preliminary sources of information that was the
