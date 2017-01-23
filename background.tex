@@ -6,87 +6,183 @@ The interest in conducting this thesis research started with a series of
 articles published by researchers at Google in their research blog
 \cite{gu2016deep,finn2016deep,yahya2016collective,chebotar2016path}. The main
 theme in these articles was robotic manipulation learned by gathering
-experience in real time in non-simulated contexts. These articles will be
-presented in more detail below and extended during the pilot study. In two of
-these articles \cite{gu2016deep,finn2016deep} tasks are learned from scratch
-without the need for initializing by demonstration. Although, in the article by
-Gu et al. \cite{gu2016deep}, poses of targets and arms are known by attached
-equipment. It would be interesting to incorporate estimation of poses from
-visual feedback in this case to lessen the need for external equipment. Another
-central theme in these articles is the distributed collection of experience
-over several robots. This is done in order to decrease the time it takes to
-collect data and to increase variance of the data. The use cases for
-incorporating and extending these findings could be robotic manipulation tasks
-with camera as feedback where exact relative positions of objects,
-manipulators, and sensors need not be fixed. Also, where resources exists to
-use several robots for speeding up the learning process. Possible readers might
-be other researchers working with end-to-end machine learning for robotic
-manipulation. Other interested parties might also be manufacturers where
-repetitive tasks are a part of the production chain and variations in these
-make it hard for robots to be easily programmed for those tasks.
+experience in real time in non-simulated contexts. In two of these articles
+\cite{gu2016deep,finn2016deep} tasks are learned from scratch without the need
+for initializing by demonstration. Although, in the article by Gu et al.
+\cite{gu2016deep}, poses of targets and arms are known from attached equipment.
+It would be interesting to incorporate estimation of poses from visual feedback
+in this case to lessen the need for external equipment. Another central theme
+in these articles is the distributed collection of experience over several
+robots. This is done in order to decrease the time it takes to collect data and
+to increase variance of the data and the robustness of the algorithms. The use
+cases for incorporating and extending these findings could be robotic
+manipulation tasks with camera as feedback where exact relative positions of
+objects, manipulators, and sensors need not be fixed. Also, where resources
+exists to use several robots for speeding up the learning process. Possible
+readers might be other researchers working with end-to-end machine learning for
+robotic manipulation. Other interested parties might also be manufacturers
+where repetitive tasks are a part of the production chain and variations in
+these make it hard for robots to be easily programmed for those tasks.
 
 \subsection{Reinforcement learning}
 
-This entire section is a descriptions of key concepts from a book on
+This entire section is descriptions of key concepts from a book on
 Reinforcement Learning by Sutton and Barto \cite{sutton1998reinforcement}.
 
 \subsubsection{The three tiers of machine learning}
 
 In reinforcement learning (RL) an agent interacts with an environment and tries
-to maximize some \textit{reward}, or rather the total amount of reward received
-over time. To maximize the reward in the long run might require short-time
-losses, making the problem more complex than just maximizing for one step at a
-time.  To find a good strategy, commonly referred to as a \textit{policy}, the
-agent uses its experience to make better decisions, this is referred to as
+to maximize how much \textit{reward} it can observe from the environment. To
+maximize the reward in the long run might require short-time losses, making the
+problem more complex than just maximizing for one step at a time. To find a
+good strategy, commonly referred to as a \textit{policy}, the agent uses its
+experience to make better decisions, this is referred to as
 \textit{exploitation}. But, it must also find a balance between exploitation
 and to also try out new things, i. e. \textit{exploration}. These things are
 specific for RL and therefore distinguishes it from supervised and unsupervised
-learning making it a third piece of machine learning.
+learning making it the third piece of machine learning.
 
 \subsubsection{Main elements of RL}
 
-A policy is a function from the state of the environment to an action, i. e.
-the function that chooses what to do under any state. A reward is an immediate
-signal given by the environment that the agent receives after each interaction.
-Since a reward is only short-term a \textit{value function} tries to estimate
-the total amount of reward that will be given in the long run when taking some
-action. To enable planning of actions in the environment, RL algorithms
-sometimes uses a \textit{model} in order to try out actions in this before
-making decisions. This is usually referred to as model-based RL in contrast to
-model-free.
+Let $S_t$ be the state at time $t$, $R_t$ be the reward at time $t$, and $A_t$
+the action at time $t$. The interaction between an agent and its environment in
+RL is depicted in figure \ref{fig:rl_flowchart}. At time step $t$, the agent reads
+the environment state and takes an action. The environment changes, maybe
+stochastically, by responding with a new state and a reward at time $t+1$. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[]{res/agent_environment_interaction.pdf}
+
+    \caption{Agent and environment interaction in RL. $S_t$, $R_t$, and $A_t$
+             is the state, reward, and action at time $t$.}
+
+    \label{fig:rl_flowchart}
+\end{figure}
+
+The quantity to maximize is often not the individual rewards, but rather the
+long term accumulated rewards. Let us call this quantity $G_t$, or
+\textit{return}, for an agent at time $t$:
+
+\begin{equation}
+    G_t = \sum_{k=0}^\infty \gamma^k R_{t+k+1}
+\end{equation}
+
+Some problems imply infinite sequences of actions and rewards and in turn
+implying that the sum of all rewards be infinite. It is of course a problem to
+maximize something infinite and that is the reason for the $\gamma \in \left[0, 1\right]$ factor above
+that alleviates this problem if $\gamma < 1$. For lower values of $\gamma$ the agent
+tries to maximize short term rewards, and for larger values long-term rewards. 
+
+A policy is a function from the state of the environment to probabilities over
+actions, i. e.  the function that chooses what to do in any situation. Since a
+reward is only short-term, a \textit{value function} tries to estimate the
+total amount of reward that will be given in the long run for being in some
+state and following some policy. To enable planning of actions in the
+environment, RL algorithms sometimes uses a \textit{model} in order to try out
+actions in this before making decisions. This is usually referred to as
+\textit{model-based} RL in contrast to \textit{model-free}. TODO: Change "try
+out" above if not correct.
 
 \subsubsection{Finite Markov Decision Processes}
 
 In a RL scenario where the environment has a finite number of states, there is
 a finite number of actions, and the Markov property holds is called a
-\textit{finite Markov Decision Process} (finite MDP). Let $S_t$ be the state at
-time $t$, $R_t$ be the reward at time $t$, and $A_t$ the action at time $t$.
-The interaction between an agent and its environment in RL is that the agent at
-each time step $t$ reads the environment and takes an action. The environment
-changes, maybe stochastically, by responding with a new state and a reward at
-time $t+1$. The dynamics of a finite MDP is completely specified by the
+\textit{finite Markov Decision Process} (finite MDP). The dynamics of a finite MDP is completely specified by the
 probability distribution:
 
 \begin{equation}
     p(s', r|s, a) = P(S_{t+1} = s', R_{t+1} = r | S_t = s, A_t = a)
 \end{equation}
 
-State-value function (TODO: define $\gamma$ and purpose, define/skip $G$ also?):
+Important functions and terminology that is used throughout RL includes the \textit{state-value function} (abbreviated as value function) and
+the \textit{action-value function}. The state-value function with respect to some policy informally tells you
+how good a state is to be in given that you follow that policy:
+
 \begin{equation}
     v_\pi(s) = \mathbb{E}_\pi\left[G_t|S_t=s\right] = \mathbb{E}_\pi\left[\sum_{k=0}^\infty \gamma^k R_{t+k+1}|S_t=s\right]
 \end{equation}
 
-Action-value function:
+To compare the value of different actions in some state, given that you thereafter follow some policy $\pi$,
+is given by the action-value function:
+
 \begin{equation}
     q_\pi(s, a) = \mathbb{E}_\pi\left[G_t|S_t=s,A_t=a\right] = \mathbb{E}_\pi\left[\sum_{k=0}^\infty \gamma^k R_{t+k+1}|S_t=s,A_t=a\right]
 \end{equation}
 
+According to RL theory there is always an optimal policy, i. e. that gives the
+highest possible expected return given any state. This is often denoted with
+$*$ and has the corresponding value and action-value functions $v_*(s)$ and
+$q_*(s, a)$. Given the optimal value or action-value function, it is (depending
+on the problem) easy to infer the optimal policy, therefore a common approach
+is to first approximate either of these functions.
 
-\subsubsection{Q-Learning}
-TODO: Mention somewhere \textit{on-policy} and \textit{off-policy}.
+\subsubsection{Policy and value iteration}
+
+One exact method to find the optimal policy, at least in the limit, is called
+\textit{policy iteration}. This builds on two alternating steps, the first
+called \textit{iterative policy evaluation}. This estimates a value function
+given some policy and starts from a random value function $v_0$, except for any
+terminal state which is assigned $0$. Then we iteratively update new value
+functions for each step:
+
+\begin{align*}
+    v_{k+1}(s) &= \mathbb{E}\left[R_{t+1} + \gamma v_{k}(S_{t+1}) | S_t=s \right] \\
+               &= \sum_a \pi (a|s) \sum p(s', r|s, a) \left[r + \gamma v_k(s')\right]
+\end{align*}
+
+As can be seen, the dynamics $p(s', r|s, a)$ needs to be known, which of course
+is not always the case. The next step is called \textit{policy improvement} and for this
+we first need to calculate the action-state function given the current policy
+$\pi$:
+
+\begin{align*}
+    q_\pi(s, a) &= \mathbb{E}\left[R_{t+1} + \gamma v_\pi(S_{t+1}) | S_t=s, A_t = a \right] \\
+                &= \sum_{s', r} p(s', r|s, a) \left[r + \gamma v_\pi(s')\right]
+\end{align*}
+
+When we have this, we can get an improved policy $\pi'$ by:
+
+\begin{equation}
+    \pi'(s) = \text{arg}\max_a q_\pi(s, a)
+\end{equation}
+
+Iteratively doing these two steps will eventually converge to the optimal
+policy. There is an alternative way that is done by only approximating the
+value function, called \textit{value iteration}:
+
+\begin{align*}
+    v_{k+1}(s) &= \max_a \mathbb{E}\left[R_{t+1} + \gamma v_k(S_{t+1}) | S_t=s, A_t = a \right] \\
+             &= \max_a \sum_{s', r} p(s', r|s, a) \left[r + \gamma v_k(s')\right]
+\end{align*}
+
+\subsubsection{Monte Carlo methods and Time Difference learning}
+
+Policy and value iteration are exploring the entire state-action space and
+finds an optimal policy if the dynamics of the environment are known. Sometimes
+we are dealing with samples from interacting with a system, and where we do not
+know the dynamics. For these cases, we can instead estimate the action-value
+function given a policy. This can be done by \textit{Monte Carlo methods} which
+basically is averaging of returns for samples that we have attained. The other
+method is \textit{Time difference methods} which estimates an error for each
+observed reward and updates the action-value function with this. To be more
+precise, one famous example of a time difference method is \textit{Q-learning}
+and the updates are done according to:
+
 \begin{equation}
     Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \left[ R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t) \right]
 \end{equation}
+
+Q-learning is an example of an \textit{off-policy} method. This means that you
+can use a second, or derived, policy for exploration, but the algorithm still
+finds the greedy optimal policy. The other family of methods is called
+\textit{on-policy} methods. In this case, the exploring policy is the
+same as the policy being improved.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{res/naf-net.pdf}
+\end{figure}
 
 \subsection{Pilot study}
 
