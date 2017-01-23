@@ -229,8 +229,13 @@ functions except for $\mathbf{L}$ and $A$ as already defined.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{res/naf-net.pdf}
-    \caption{Neural network design for NAF. FC is short for fully connected layers.}
+    \includegraphics[width=1.0\textwidth]{res/naf-net.pdf}
+
+    \caption{Neural network design for NAF \cite{gu2016continuous}. The
+    activation function to $V$ was not specified. The tanh activation was added
+    in figure due to Gu et al. \cite{gu2016deep} using it in order to have
+    bounded actions for safety reasons.}
+
     \label{fig:naf-net}
 \end{figure}
 
@@ -314,28 +319,31 @@ so instead using a GPU might increase the effect of more collectors.
     \label{algo:async_naf}
 \end{algorithm}
 
+\subsection{Door opening with human demonstration}
+
+Chebotar et al. \cite{chebotar2016path} demonstrates door opening tasks
+initialized from human demonstration using methods called Guided Policy Search
+(GPS) and Policy Improvement with Path Integrals (PI$^2$). They demonstrate
+that they can learn this task with torque control from visual input. This is
+extended by Yahya et al. \cite{yahya2016collective} to be trained
+simultaneously on several robots. In both cases, torque commands are the output
+of a neural network where the first part takes visual input and is pretrained
+with pose estimates of the door and the robot arm. This neural network is shown
+in figure ...
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width = 1.0\textwidth]{res/gps-net.pdf}
+    \caption{Network used for door opening task from visual inputs \cite{chebotar2016path}}
+    \label{fig:gps_net}
+\end{figure}
+
 \subsection{Motion planning by ''Deep visual foresight''}
 
 This article \cite{finn2016deep} trains a convolutional neural network on
 images together with motion as inputs to predict how the image will change due
 to that motion. This is later used to plan movement of objects to some target
 pose.
-
-\subsection{Path Integral Guided Policy Search}
-
-In this article \cite{chebotar2016path}, the authors extend Guided Policy
-Search and demonstrate two manipulation tasks. These are initialized from
-demonstrations. To be able to comprehend this article, referenced articles
-\cite{levine2016end,theodorou2010generalized,montgomery2016guided} would have
-to be read as well.
-
-\subsection{Collective Robot Reinforcement Learning with Distributed
-               Asynchronous Guided Policy Search}
-
-This article \cite{yahya2016collective} distributes learning of
-door opening across several robots. The exact nature of the tasks
-are varied across robots to increase robustness. The learning is
-initialized from demonstration.
 
 \subsection{Problem statement}
 
