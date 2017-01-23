@@ -179,31 +179,98 @@ finds the greedy optimal policy. The other family of methods is called
 \textit{on-policy} methods. In this case, the exploring policy is the
 same as the policy being improved.
 
-\begin{figure}
+\subsection{Extending Q-learning to continuous domains}
+
+The Q-learning method assumes you can keep a finite set of estimates for all
+state-action pairs. Continuous state and action spaces require other methods,
+or modifications to Q-learning to be possible to use. Gu et al.
+\cite{gu2016continuous} proposes a relatively simple variant of Q-learning they
+call normalized advantage functions (NAF). First, the action-value function is
+divided into a sum of the value function $V$ and what they call an advantage
+function $A$:
+
+\begin{equation}
+    Q(\mathbf{x}, \mathbf{u}) = A(\mathbf{x}, \mathbf{u}) + V(\mathbf{x})
+\end{equation}
+
+Here, $\mathbf{x}$ is the state of the environment and $\mathbf{u}$ are
+controls or actions. The advantage function is a quadratic function of $u$:
+
+\begin{equation}
+    A(\mathbf{x}, \mathbf{u}) = -\frac{1}{2}(\mathbf{u} - \mathbf{\mu(x)})^T\mathbf{P(x)}(\mathbf{u} - \mathbf{\mu(x)})
+    \label{eq:advantage_function}
+\end{equation}
+
+There are more terms that need to be defined, but let's look at equation
+\ref{eq:advantage_function} first. The matrix $\mathbf{P}$ is a
+positive-definite matrix, this makes the advantage function have its maximum
+when $\mathbf{u = \mu(x)}$.  The purpose of $\mu$ is to be a greedy policy
+function, thus $\mathbf{Q}$ is maximized when $\mathbf{u}$ is the greedy
+action. The purpose of this is that given an optimal $Q$, we do not need to
+search for the optimal action, since we know $\mathbf{\mu}$. Now the definition
+of $\mathbf{P}$:
+
+\begin{equation}
+    P(\mathbf{x}) = \mathbf{L(x)L(x)}^T
+\end{equation}
+
+Here, $\mathbf{L}$ is a lower-triangular matrix where diagonal entries are
+strictly positive.
+
+After these definitions, we are left with estimating the functions $V$,
+$\mathbf{\mu}$, and $\mathbf{L}$. To this end the authors use a neural network,
+here shown in figure \ref{fig:naf-net}. The $\mathbf{L}$ output is a matrix
+multiplication with previous layer and not passed through an activation
+function. The diagonal entries of L are exponentiated. Hidden layers consisted
+of 200 fully connected units with rectified linear units (ReLU) as activation
+functions except for $\mathbf{L}$ and $A$ as already defined.
+
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.6\textwidth]{res/naf-net.pdf}
+    \includegraphics[width=0.7\textwidth]{res/naf-net.pdf}
+    \caption{Neural network design for NAF. FC is short for fully connected layers.}
+    \label{fig:naf-net}
 \end{figure}
 
-\subsection{Pilot study}
+The NAF algorithm is listed in algorithm \ref{algo:naf}. All collected experiences
+are stored in a replay buffer that optimization is run against. Exploration is done
+by adding noise to the current greedy policy $\mathbf{\mu}$.
 
-The following sections are the preliminary sources of information that was the
-initial spark for this thesis as mentioned above. How to re-implement these
-articles is not self-contained, so the pilot would necessarily need to also
-include reading into articles from the references of these. Reading of these
-initial articles would be needed to motivate an appropriate method, and then
-further research would be done with the purpose of gaining all the information
-needed to implement such a solution. The thesis study will be conducted at the
-Robotics, Perception, and Learning lab at KTH with the main interest originally
-being to dig into these articles and develop something further.
+\begin{algorithm}[ht]
+    \caption{NAF algorithm}
+    \begin{algorithmic}
+        \STATE{Randomly initialize network $Q(x, u|\theta)$}
+        \STATE{Initialize target network $Q'$, $\theta' \leftarrow \theta$}
+        \STATE{Initialize replay buffer $R \leftarrow \emptyset$}
+        \FOR{episode $= 1$ to $M$}
+            \STATE{Initialize random process $\mathcal{N}$ for action exploration}
+            \STATE{Receive initial exploration state $x_1$}
+            \FOR{$t = 1$ to $T$}
+                \STATE{Select action $\mathbf{u_t = \mu(x_t|\theta) + \mathcal{N}_t}$}
+                \STATE{Execute $\mathbf{u_t}$ and observe $r_t$ and $\mathbf{x}_{t+1}$}
+                \STATE{Store transition $(\mathbf{x}_t, \mathbf{u}_t, r_t, \mathbf{x}_{t+1})$ in $R$}
+                \FOR{iteration $= 1$ to $I$}
+                    \STATE{Sample a random minibatch of $m$ transitions from $R$}
+                    \STATE{Set $y_i = r_i + \gamma V'(\mathbf{x}_{i+1}|\theta')$}
+                    \STATE{Update $\theta$ by minimizing the loss:
+                           $L = \frac{1}{N}\sum_i (y_i - Q(\mathbf{x}_i, \mathbf{u}_i|\theta))^2$}
+                    \STATE{Update target network $\theta' \leftarrow \tau \theta + (1 - \tau)\theta'$}
+                \ENDFOR
+            \ENDFOR
+        \ENDFOR
+    \end{algorithmic}
+    \label{algo:naf}
+\end{algorithm}
 
-\subsubsection{Motion planning by ''Deep visual foresight''}
+
+\subsection{Motion planning by ''Deep visual foresight''}
 
 This article \cite{finn2016deep} trains a convolutional neural network on
 images together with motion as inputs to predict how the image will change due
 to that motion. This is later used to plan movement of objects to some target
 pose.
 
-\subsubsection{Path Integral Guided Policy Search}
+\subsection{Path Integral Guided Policy Search}
 
 In this article \cite{chebotar2016path}, the authors extend Guided Policy
 Search and demonstrate two manipulation tasks. These are initialized from
@@ -211,7 +278,7 @@ demonstrations. To be able to comprehend this article, referenced articles
 \cite{levine2016end,theodorou2010generalized,montgomery2016guided} would have
 to be read as well.
 
-\subsubsection{Collective Robot Reinforcement Learning with Distributed
+\subsection{Collective Robot Reinforcement Learning with Distributed
                Asynchronous Guided Policy Search}
 
 This article \cite{yahya2016collective} distributes learning of
@@ -219,7 +286,7 @@ door opening across several robots. The exact nature of the tasks
 are varied across robots to increase robustness. The learning is
 initialized from demonstration.
 
-\subsubsection{Parallelized training without prior demonstration}
+\subsection{Parallelized training without prior demonstration}
 
 This article \cite{gu2016deep} shows several robotic manipulation tasks where
 learning is parallelized across platforms, and they do not require previous
@@ -231,15 +298,6 @@ robots are done through visual feedback, while in this article
 \cite{gu2016deep} no sensory feedback is provided and poses are known through
 attached equipment. The pose estimation was done using a convolutional neural
 network which could be a feasible extension to this article.
-
-
-\subsubsection{Reinforcement learning}
-
-These articles mentioned above naturally deals with reinforcement vocabulary
-and assumes knowledge in this area. Therefore the pilot would include studying
-a book by Sutton and Barto \cite{sutton1998reinforcement}. In this book,
-chapters 1-3 and a section about non-linear function approximators are
-essential (by advice from supervisor).
 
 \subsection{Problem statement}
 
