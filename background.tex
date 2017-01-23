@@ -185,9 +185,11 @@ The Q-learning method assumes you can keep a finite set of estimates for all
 state-action pairs. Continuous state and action spaces require other methods,
 or modifications to Q-learning to be possible to use. Gu et al.
 \cite{gu2016continuous} proposes a relatively simple variant of Q-learning they
-call normalized advantage functions (NAF). First, the action-value function is
-divided into a sum of the value function $V$ and what they call an advantage
-function $A$:
+call normalized advantage functions (NAF). They argue after doing simulation
+experiments that this algorithm is an effective alternative to recently
+proposed actor-critic methods and that it learns faster with more accurate
+resulting policies. First, the action-value function is divided into a sum of
+the value function $V$ and what they call an advantage function $A$:
 
 \begin{equation}
     Q(\mathbf{x}, \mathbf{u}) = A(\mathbf{x}, \mathbf{u}) + V(\mathbf{x})
@@ -236,7 +238,7 @@ The NAF algorithm is listed in algorithm \ref{algo:naf}. All collected experienc
 are stored in a replay buffer that optimization is run against. Exploration is done
 by adding noise to the current greedy policy $\mathbf{\mu}$.
 
-\begin{algorithm}[ht]
+\begin{algorithm}[!h]
     \caption{NAF algorithm}
     \begin{algorithmic}
         \STATE{Randomly initialize network $Q(x, u|\theta)$}
@@ -262,6 +264,55 @@ by adding noise to the current greedy policy $\mathbf{\mu}$.
     \label{algo:naf}
 \end{algorithm}
 
+\subsection{Distributed real-world learning using NAF}
+
+Real-world experiments were done by Gu et al. \cite{gu2016deep} on door opening
+tasks using the NAF algorithm and 7-DoF torque controlled arms. They extended
+the algorithm to be distributed on several robots/collectors and one separate
+trainer thread on a separate machine. They state that this was the first
+successful real-world experiment with a relatively high complexity problem
+without human demonstration or simulated pretraining. They used the layout of
+the network shown in figure \ref{fig:naf-net} but with hidden layers of 100
+units each. Also, in this article it was explicitly mentioned that the
+activation functions for the policy $\mathbf{\mu}$ was tanh in order to bound
+the actions. The state input consisted of the arm pose and target pose. The
+target pose was known from attached equipment. The modified version of NAF is
+listed in algorithm \ref{algo:async_naf}.
+
+The authors conclude that there was an upper bound on the effects of
+parallelization, but hypothesize that the speed of the trainer thread has a
+limiting factor in this matter. They used CPU for training the neural network
+so instead using a GPU might increase the effect of more collectors.
+
+\begin{algorithm}[!h]
+    \caption{Asynchronous NAF - $N$ collector threads and $1$ trainer thread}
+    \begin{algorithmic}
+        \STATE{// trainer thread}
+        \STATE{Randomly initialize network $Q(\mathbf{x}, \mathbf{u}|\theta)$}
+        \STATE{Initialize target network $Q'$, $\theta' \leftarrow \theta$}
+        \STATE{Initialize shared replay buffer $R \leftarrow \emptyset$}
+        \FOR{iteration $= 1$ to $I$}
+            \STATE{Sample a random minibatch of m transitions from $R$}
+            \STATE{Set $y_i = \begin{cases}r_i+\gamma V'(x_i|\theta) &\text{ if } t_i < T,\\r_i &\text{ if } t_i = T\end{cases}$}
+            \STATE{Update $\theta$ by minimizing the loss:
+                   $L = \frac{1}{m} \sum_i (y_i - Q(\mathbf{x}_i, \mathbf{u}_i|\theta))^2$}
+            \STATE{Update the target network: $\theta' \leftarrow \tau\theta + (1-\tau)\theta'$}
+        \ENDFOR
+        \STATE{// collector thread $n$, $n = 1...N$}
+        \FOR{episode $= 1$ to $M$}
+            \STATE{Sync policy network weights $\theta_n \leftarrow \theta$}
+            \STATE{Initialize a random process $\mathcal{N}$ for action exploration}
+            \STATE{Receive initial observation state $x_1$}
+            \STATE{TODO}
+            \FOR{$t = 1$ to $T$}
+                \STATE{Select action $\mathbf{u}_t = \mathbf{mu}$}
+                \STATE{Execute $\mathbf{u}_t$ and observe $r_t$ and $\mathbf{x}_{t+1}$}
+                \STATE{Send transition $(\mathbf{x}_t, \mathbf{u}_t, r_t, \mathbf{x}_{t+1}, t)$ to $R$}
+            \ENDFOR
+        \ENDFOR
+    \end{algorithmic}
+    \label{algo:async_naf}
+\end{algorithm}
 
 \subsection{Motion planning by ''Deep visual foresight''}
 
@@ -285,19 +336,6 @@ This article \cite{yahya2016collective} distributes learning of
 door opening across several robots. The exact nature of the tasks
 are varied across robots to increase robustness. The learning is
 initialized from demonstration.
-
-\subsection{Parallelized training without prior demonstration}
-
-This article \cite{gu2016deep} shows several robotic manipulation tasks where
-learning is parallelized across platforms, and they do not require previous
-demonstrations.  For this article, I would need to read up on an algorithm
-called Normalized Advantage Function (NAF) \cite{gu2016continuous}. In both of
-the two previously mentioned articles
-\cite{chebotar2016path,yahya2016collective} pose estimation of targets and
-robots are done through visual feedback, while in this article
-\cite{gu2016deep} no sensory feedback is provided and poses are known through
-attached equipment. The pose estimation was done using a convolutional neural
-network which could be a feasible extension to this article.
 
 \subsection{Problem statement}
 
