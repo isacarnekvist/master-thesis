@@ -376,6 +376,94 @@ part of the training needed human supervision or demonstration. Another feature
 is that the camera positions were not the same across robots, it is unclear if
 they evaluated the method with a new camera position though.
 
+\subsection{Short on neural networks}
+
+\subsubsection{Basic idea}
+
+The simplest neural network could be considered to be a linear transformation
+of some data points $X$:
+
+\begin{equation}
+    X_1 = WX + B
+\end{equation}
+
+This is obviously restricted to learning linear transformations, so to learn
+non-linear functions, you first add a non-linear \textit{activation-function}:
+
+\begin{equation}
+    X_1 = f(WX + B)
+\end{equation}
+
+And then, we can recursively stack transformations in order to learn more complex
+functions:
+
+\begin{align}
+    X_2 &= f(W_1X_1 + B_1)\\
+    ...\\
+    Y_{k+1} &= f(W_kX_k + B_k)
+\end{align}
+
+By all parts being differentiable we can specify a loss function and calculate
+its derivatives with respect to all the parameters $W, W_1,...$ and $B, B_1,
+...$. Using this we can then minimize the loss using gradient descent.
+
+\subsubsection{Common activation functions}
+
+Two common activation functions include \textit{tanh} and \textit{Rectified
+Linear Unit} (ReLU) shown in figure \ref{fig:tanh_relu}. The tanh function is defined as:
+
+\begin{equation}
+    \tanh(x) = \frac{2}{1+e^{-x}} - 1
+\end{equation}
+
+The ReLU is defined as:
+
+\begin{equation}
+    \text{relu}(x) = \max (0, x)
+\end{equation}
+
+For classification
+networks, a common function to have as the last activation function is the
+softmax function shown in figure \ref{fig:softmax}. The softmax have the
+property that all values will be output in the range $[0, 1]$ and sum to one,
+making it conveniently interpreted as probabilities of different classes or
+categories. The mathematical definition is for a set $x_1, ..., x_K$:
+
+\begin{equation}
+    \text{softmax}(x_k|x_1, ..., x_K) = \frac{e^{x_k}}{\sum_{i=1}^K e^{x_i}}
+\end{equation}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{res/relu_tanh.pdf}
+
+    \caption{Common activation functions for neural networks.}
+
+    \label{fig:tanh_relu}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{res/softmax.pdf}
+
+    \caption{Softmax function commonly used to convert a set of numbers $\in \mathbb{R}$ to probabilities of a discrete set of categories.}
+
+    \label{fig:softmax}
+\end{figure}
+
+\subsubsection{Weight sharing}
+In order to diminish the number of parameters and use the fact that some features are invariant of where in the data they are,
+e.g. the pattern $1, 2, 3, 4$ in the beginning, middle, or the end of the data, one often uses convolutions:
+
+\begin{equation}
+    y = w * x + b
+\end{equation}
+
+The notation becomes a bit more tricky here since the convolutions are commonly done in two dimensions with
+3-dimensional kernels ($w$). These are commonly used in neural networks for images.
+
+TODO: Find and add about spatial softmax?
+
 \subsection{Problem statement}
 
 Manipulation tasks that seem trivial to a human can be hard to learn for
