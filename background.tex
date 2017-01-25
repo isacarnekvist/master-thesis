@@ -221,11 +221,11 @@ strictly positive.
 
 After these definitions, we are left with estimating the functions $V$,
 $\mathbf{\mu}$, and $\mathbf{L}$. To this end the authors use a neural network,
-here shown in figure \ref{fig:naf-net}. The $\mathbf{L}$ output is a matrix
-multiplication with previous layer and not passed through an activation
-function. The diagonal entries of L are exponentiated. Hidden layers consisted
-of 200 fully connected units with rectified linear units (ReLU) as activation
-functions except for $\mathbf{L}$ and $A$ as already defined.
+here shown in figure \ref{fig:naf-net}. The $\mathbf{L}$ output is fully
+connected with the previous layer and not passed through an activation function
+(it is linear). The diagonal entries of L are exponentiated. Hidden layers
+consisted of 200 fully connected units with rectified linear units (ReLU) as
+activation functions except for $\mathbf{L}$ and $A$ as already defined.
 
 \begin{figure}[h]
     \centering
@@ -324,12 +324,19 @@ so instead using a GPU might increase the effect of more collectors.
 Chebotar et al. \cite{chebotar2016path} demonstrates door opening tasks
 initialized from human demonstration using methods called Guided Policy Search
 (GPS) and Policy Improvement with Path Integrals (PI$^2$). They demonstrate
-that they can learn this task with torque control from visual input. This is
+that they can learn this task outputting torque control from visual input. This is
 extended by Yahya et al. \cite{yahya2016collective} to be trained
 simultaneously on several robots. In both cases, torque commands are the output
 of a neural network where the first part takes visual input and is pretrained
 with pose estimates of the door and the robot arm. This neural network is shown
-in figure ...
+in figure \ref{fig:gps_net}. Since the robot poses were labeled in the robot
+base frame and the camera offsets were somewhat random, a linear mapping from
+the neural network output to the base frame was learned separately for each of
+the robots. The authors evaluated the trained policy on a previously unseen
+door with different translations and rotations. The mean success rate was
+90\%. They also tried offsetting the camera 1) 5 cm towards the ground and 2) 4
+cm backwards. The respective success rates for these translations were 52 \%
+and 54 \%.
 
 \begin{figure}[h]
     \centering
