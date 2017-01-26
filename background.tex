@@ -1,28 +1,21 @@
 \section{Background}
 
-\subsection{Objective}
+\subsection{Introduction}
 
 The interest in conducting this thesis research started with a series of
 articles published by researchers at Google in their research blog
 \cite{gu2016deep,finn2016deep,yahya2016collective,chebotar2016path}. The main
 theme in these articles was robotic manipulation learned by gathering
-experience in real time in non-simulated contexts. In two of these articles
-\cite{gu2016deep,finn2016deep} tasks are learned from scratch without the need
-for initializing by demonstration. Although, in the article by Gu et al.
-\cite{gu2016deep}, poses of targets and arms are known from attached equipment.
-It would be interesting to incorporate estimation of poses from visual feedback
-in this case to lessen the need for external equipment. Another central theme
-in these articles is the distributed collection of experience over several
-robots. This is done in order to decrease the time it takes to collect data and
-to increase variance of the data and the robustness of the algorithms. The use
-cases for incorporating and extending these findings could be robotic
-manipulation tasks with camera as feedback where exact relative positions of
-objects, manipulators, and sensors need not be fixed. Also, where resources
-exists to use several robots for speeding up the learning process. Possible
-readers might be other researchers working with end-to-end machine learning for
-robotic manipulation. Other interested parties might also be manufacturers
-where repetitive tasks are a part of the production chain and variations in
-these make it hard for robots to be easily programmed for those tasks.
+experience and learning in real time in non-simulated contexts. In two of these
+articles \cite{gu2016deep,finn2016deep} tasks were learned from scratch without
+the need for initializing by demonstration for which one gets the impression is
+a sought-for feature. Another theme was the distribution of data gathering and
+learning. The following sections cover necessary background in order to
+implement real-world distributed learning of a manipulation task without human
+demonstration. Reinforcement learning is major building block of this, and is a
+new area to me, so a more thorough walkthrough is provided. I am somewhat
+confident in neural networks, so therefore only a very swift walkthrough of
+necessary concepts are included.
 
 \subsection{Reinforcement learning}
 
@@ -179,10 +172,10 @@ finds the greedy optimal policy. The other family of methods is called
 \textit{on-policy} methods. In this case, the exploring policy is the
 same as the policy being improved.
 
-\subsection{Short on neural networks}
+\subsection{Neural networks}
 
 The following sections will deal with different kind of neural networks, so
-for completeness this short section introduces basic concepts.
+for completeness this short section introduces basic concepts in this topic.
 
 \subsubsection{Basic idea}
 
