@@ -6,14 +6,14 @@ section, section \ref{sec:background}.
 
 \subsection{Normalized Advantage Functions (NAF)}
 
-In order to extend Q-learning normally used for discrete state and action
+In order to extend Q-learning, normally used for discrete state and action
 spaces to continuous spaces, Gu et al. \cite{gu2016continuous} proposes a
 relatively simple solution called normalized advantage functions (NAF). They
 argue after doing simulation experiments that this algorithm is an effective
 alternative to recently proposed actor-critic methods and that it learns faster
 with more accurate resulting policies. First, the action-value function is
 divided into a sum of the value function $V$ and what they call an advantage
-function $A$:
+function $A : \mathbb{R}^d \longmapsto \mathbb{R}$:
 
 \begin{equation}
     Q(\mathbf{x}, \mathbf{u}) = A(\mathbf{x}, \mathbf{u}) + V(\mathbf{x})
@@ -27,14 +27,13 @@ controls or actions. The advantage function is a quadratic function of $u$:
     \label{eq:advantage_function}
 \end{equation}
 
-There are more terms that need to be defined, but let's look at equation
-\ref{eq:advantage_function} first. The matrix $\mathbf{P}$ is a
-positive-definite matrix, this makes the advantage function have its maximum
-when $\mathbf{u = \mu(x)}$.  The purpose of $\mu$ is to be a greedy policy
-function, thus $\mathbf{Q}$ is maximized when $\mathbf{u}$ is the greedy
-action. The purpose of this is that given an optimal $Q$, we do not need to
-search for the optimal action, since we know $\mathbf{\mu}$. Now the definition
-of $\mathbf{P}$:
+There are more terms that need to be defined, but first consider equation
+(\ref{eq:advantage_function}). The matrix $\mathbf{P}$ is a positive-definite
+matrix, this makes the advantage function have its maximum when $\mathbf{u =
+\mu(x)}$.  The purpose of $\mu$ is to be a greedy policy function, thus
+$\mathbf{Q}$ is maximized when $\mathbf{u}$ is the greedy action. The purpose
+of this is that given an optimal $Q$, we do not need to search for the optimal
+action, since we know $\mathbf{\mu}$. Now the definition of $\mathbf{P}$:
 
 \begin{equation}
     P(\mathbf{x}) = \mathbf{L(x)L(x)}^T
@@ -198,6 +197,51 @@ and 54 \%.
     \caption{Network used for door opening task from visual inputs \cite{chebotar2016path}}
     \label{fig:gps_net}
 \end{figure}
+
+\subsection{Prioritized experience replay}
+
+When randomly sampling experiences from a replay buffer, one alternative is to
+sample from a uniform distribution. However, if samples are sampled from a
+distribution where experiences with larger temporal-difference errors are more
+likely to be chosen, training times can be reduced with resulting policies that
+outperform those trained by uniform sampling \cite{schaul2015prioritized}. Let
+$R_{t}$ be the reward at time $t$, $Q(S_t, A_t)$ the Q-function of state $S_t$
+and action $A_t$ at time $t$. Let $k$ be the learning rate. Let the
+temporal-difference error for sample $i$ be defined as:
+
+\begin{equation}
+    \delta_i = k \left[ R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t) \right]
+\end{equation}
+
+Define a priority $p_i$ of sample $i$ as:
+
+\begin{equation}
+    p_i = |\delta_i| + \epsilon
+\end{equation}
+
+Here $\epsilon > 0$ ensures all priorities are strictly positive. Sample experiences
+according to the probability:
+
+\begin{equation}
+    P(i) = \frac{p_i^\alpha}{\sum_k p_k^\alpha}
+\end{equation}
+
+The hyperparameter $\alpha >= 0$ enforces more uniform probabilities for values close to
+zero and more non-uniform probabilities for larger values.
+
+Since the gradient is biased by a biased choice of samples, the magnitude of
+the gradient with respect to each sample $i$ can be weighted by $w_i
+|\delta_i|$ where:
+
+\begin{equation}
+    w_i = \left( \frac{1}{P(i)} \right)^\beta
+\end{equation}
+
+The parameter $\beta >= 0$ can be varied during training, and it is argued that
+the unbiased gradient are more important towards the end when the policy is
+converging. They varied this parameter reaching $\beta = 1$ only towards the
+end of the training. It is not clear from the article but it is assumed that
+training starts with $\beta = 0$.
 
 %\subsection{Motion planning by a predictive model}
 %
