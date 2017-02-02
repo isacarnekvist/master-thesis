@@ -171,9 +171,6 @@ same as the policy being improved.
 
 \subsection{Neural networks}
 
-The following sections will deal with different kind of neural networks, so
-for completeness this short section introduces basic concepts in this topic.
-
 \subsubsection{Basic idea}
 
 The simplest neural network could be considered to be a linear transformation
@@ -184,10 +181,13 @@ of some data points $X$:
 \end{equation}
 
 Since for some column in $X$, all its values influence all the values in the
-same column in $X_1$, the ''input layer'' $X$ and ''layer'' $X_1$ is said to be
-\textit{fully connected}. This is obviously restricted to learning linear
-transformations, so to learn non-linear functions, you first add a non-linear
-\textit{activation-function}:
+same column in $X_1$, the \textit{input layer} $X$ and \textit{layer} $X_1$ is
+said to be \textit{fully connected}. The convention of describing neural
+networks with layers comes from the inspiration of physical neurons arranged in
+layers although the description is not as apparent when describing the networks
+in this fashion. The above transformation is obviously restricted to learning
+linear transformations, so to learn non-linear functions, you first add a
+non-linear \textit{activation-function}:
 
 \begin{equation}
     X_1 = f(WX + B)
@@ -204,9 +204,11 @@ functions:
 
 By all parts being differentiable we can specify a loss function and calculate
 its derivatives with respect to all the parameters $W, W_1,...$ and $B, B_1,
-...$. Using this we can then minimize the loss using gradient descent. The first
-layer $X$ is commonly referred to as the input layer and the last layer as output
-layer. The intermediate values are referred to as hidden layers.
+...$. Using this we can then minimize the loss using gradient descent. A common
+and effective way to do this is called \textit{back-propagation}
+\cite{williams1986learning}. The first layer $X$ is commonly referred to as the
+input layer and the last layer as output layer. The intermediate values are
+referred to as hidden layers.
 
 \subsubsection{Common activation functions}
 
@@ -252,48 +254,20 @@ categories. The mathematical definition is for a set $x_1, ..., x_K$:
 \end{figure}
 
 \subsubsection{Weight sharing}
-In order to diminish the number of parameters and use the fact that some features are invariant of where in the data they are,
-e.g. the pattern $1, 2, 3, 4$ in the beginning, middle, or the end of the data, one often uses convolutions:
+
+In order to constrain the number of parameters and use the fact that some
+features are invariant of where in the data they are, e.g. the pattern $1, 2,
+3, 4$ in the beginning, middle, or the end of the data, one often uses
+convolutions (where $*$ is the convolution operator):
 
 \begin{equation}
     y = w * x + b
 \end{equation}
 
 These kind of networks are usually referred to as \textit{convolutional neural
-networks} (CNN). The notation becomes a bit more tricky here since the
+networks} (CNN) \cite{lecun1989backpropagation}. The notation becomes a bit more tricky here since the
 convolutions are commonly done in two dimensions with 3-dimensional kernels
 ($w$). These are commonly used in neural networks for images.
-
-\subsection{Spatial softmax in pose estimation}
-
-Levine et al. \cite{levine2016end} proposed an architecture for a CNN that
-gives pose estimates for robotic manipulation tasks. After the last
-convolutional layer, a softmax is applied, but only normalized over each
-kernel's response map, called \textit{spatial softmax}:
-
-\begin{equation}
-    s_{cij} = \frac{e^{a_{cij}}}{\sum_{i',j'} e^{a_{ci'j'}}}
-\end{equation}
-
-Here, $a_{cij}$ is the output of the $c$:th kernel at coordinate $ij$. After
-this, they calculate the expected 2D position for each feature, which they
-argue is better suited for pose estimation. The expected 2D position is
-expressed as a tuple $(f_{cx}, f_{cy})$ calculated according to:
-
-\begin{align}
-    f_{cx} &= \sum_{i,j} s_{ij} x_{ij} \\
-    f_{cy} &= \sum_{i,j} s_{ij} y_{ij}
-\end{align}
-
-The scalar value $x_{ij}$ is the position in image space of the pixel at coordinate
-$(i, j)$. This can reasonably easy be simplified to a matrix multiplication with constant
-weights from each of the response maps. Arguably, it could also be possible to rewrite the
-above expressions as:
-
-\begin{align}
-    f_{cx} &= \sum_{i,j} i s_{ij} \\
-    f_{cy} &= \sum_{i,j} j s_{ij}
-\end{align}
 
 \subsection{Problem statement}
 

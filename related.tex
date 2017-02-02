@@ -142,6 +142,37 @@ so instead using a GPU might increase the effect of more collectors.
     \label{algo:async_naf}
 \end{algorithm}
 
+\subsection{Spatial softmax in pose estimation}
+
+Levine et al. \cite{levine2016end} proposed an architecture for a CNN that
+gives pose estimates for robotic manipulation tasks. After the last
+convolutional layer, a softmax is applied, but only normalized over each
+kernel's response map, called \textit{spatial softmax}:
+
+\begin{equation}
+    s_{cij} = \frac{e^{a_{cij}}}{\sum_{i',j'} e^{a_{ci'j'}}}
+\end{equation}
+
+Here, $a_{cij}$ is the output of the $c$:th kernel at coordinate $ij$. After
+this, they calculate the expected 2D position for each feature, which they
+argue is better suited for pose estimation. The expected 2D position is
+expressed as a tuple $(f_{cx}, f_{cy})$ calculated according to:
+
+\begin{align}
+    f_{cx} &= \sum_{i,j} s_{ij} x_{ij} \\
+    f_{cy} &= \sum_{i,j} s_{ij} y_{ij}
+\end{align}
+
+The scalar value $x_{ij}$ is the position in image space of the pixel at coordinate
+$(i, j)$. This can reasonably easy be simplified to a matrix multiplication with constant
+weights from each of the response maps. Arguably, it could also be possible to rewrite the
+above expressions as:
+
+\begin{align}
+    f_{cx} &= \sum_{i,j} i s_{ij} \\
+    f_{cy} &= \sum_{i,j} j s_{ij}
+\end{align}
+
 \subsection{Door opening with human demonstration}
 
 Chebotar et al. \cite{chebotar2016path} demonstrates door opening tasks
