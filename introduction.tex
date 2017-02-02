@@ -2,29 +2,30 @@
 
 \subsection{Robotic manipulation}
 
-Reinforcement Learning (RL) deals with learning what actions to do in order to reach
-a long-term goal (a \textit{policy} is learned) and have been widely used for
-learning robotic manipulation tasks. Recent research suggests methods capable
-of learning real-world robotic manipulation tasks without simulation
+Reinforcement Learning (RL) deals with learning what actions to do in order to
+reach a long-term goal (a \textit{policy} is learned) and have been widely used
+for learning robotic manipulation tasks. Recent research suggests methods
+capable of learning real-world robotic manipulation tasks without simulation
 pre-training, learning only from real-world experience
 \cite{yahya2016collective,gu2016deep,finn2016deep,chebotar2016path}. Using
-visual feedback for manipulation tasks is a way to handle unknown
-poses of manipulators and target objects and training these kind of tasks
-end-to-end have been successful in simulation tasks
+visual feedback for manipulation tasks is a way to handle unknown poses of
+manipulators and target objects and training these kind of tasks end-to-end
+have been successful in simulation tasks
 \cite{schulman2015trust,lillicrap2015continuous}. Real-world manipulation tasks
 have also been learned with visual feedback but using pre-trained pose
 estimation networks \cite{gu2016deep}. Pose estimation have been shown to work
 by using convolutional neural networks (CNN)
-\cite{levine2016end,chebotar2016path,yahya2016collective}, although it was
-shown that test-time translations severely effected the manipulation task
-performance \cite{yahya2016collective}. CNNs have been trained to deal with
-relative poses \cite{park20163d}, and this could be a feasible solution to deal
-with unknown random camera offsets. Real-world experiments often rely on human
-demonstrations to learn a successful policy but this might not always be
+\cite{levine2016end,chebotar2016path,yahya2016collective}, although for some
+cases it was shown that test-time translations severely effected manipulation
+task performance \cite{yahya2016collective}. CNNs have been trained to deal
+with relative poses \cite{park20163d}, and this could be a feasible solution to
+deal with unknown random camera offsets. Real-world experiments often rely on
+human demonstrations to learn a successful policy but this might not always be
 available. Recently a successful demonstration of learning a door opening task
-from scratch without the need for human demonstration have been shown
-\cite{gu2016deep}. This was using a version of Normalized Advantage Function
-algorithms (NAF) distributed over several robotic platforms.
+from scratch without the need for human demonstration or simulation
+pre-training have been shown \cite{gu2016deep}. This was using a version of
+Normalized Advantage Function algorithms (NAF) \cite{gu2016continuous}
+distributed over several robotic platforms.
 
 \subsection{This study}
 

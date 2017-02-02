@@ -181,20 +181,19 @@ of some data points $X$:
 \end{equation}
 
 Since for some column in $X$, all its values influence all the values in the
-same column in $X_1$, the \textit{input layer} $X$ and \textit{layer} $X_1$ is
+same column in $X_1$, the \textit{input layer} $X$ and \textit{layer} $X_1$ are
 said to be \textit{fully connected}. The convention of describing neural
 networks with layers comes from the inspiration of physical neurons arranged in
 layers although the description is not as apparent when describing the networks
 in this fashion. The above transformation is obviously restricted to learning
-linear transformations, so to learn non-linear functions, you first add a
-non-linear \textit{activation-function}:
+linear transformations, so to learn non-linear functions, a
+non-linear \textit{activation-function} is added:
 
 \begin{equation}
     X_1 = f(WX + B)
 \end{equation}
 
-And then, we can recursively stack transformations in order to learn more complex
-functions:
+To learn more complex functions, transformations can be recursively stacked:
 
 \begin{align}
     X_2 &= f(W_1X_1 + B_1)\\
@@ -202,12 +201,16 @@ functions:
     Y_{k+1} &= f(W_kX_k + B_k)
 \end{align}
 
-By all parts being differentiable we can specify a loss function and calculate
+A loss function is a function $\ell : f, \mathbb{R}^d \longmapsto \mathbb{R}$,
+where $f$ is the neural network and $\mathbb{R}^d$ is some data. Usually, the
+data are inputs to the network, often along with corresponding target values.
+This specifies the error, and implicitly the wanted behavior of the network. By
+all parts being differentiable we can specify the loss function and calculate
 its derivatives with respect to all the parameters $W, W_1,...$ and $B, B_1,
-...$. Using this we can then minimize the loss using gradient descent. A common
-and effective way to do this is called \textit{back-propagation}
-\cite{williams1986learning}. The first layer $X$ is commonly referred to as the
-input layer and the last layer as output layer. The intermediate values are
+...$.  Using this we can then minimize the loss using gradient descent. A
+common and effective way to do this is called \textit{back-propagation}
+\cite{williams1986learning}.  The first layer $X$ is commonly referred to as
+the input layer and the last layer as the output layer. The intermediate values are
 referred to as hidden layers.
 
 \subsubsection{Common activation functions}
@@ -226,8 +229,8 @@ The ReLU is defined as:
 \end{equation}
 
 For classification networks, a common function to have in the output layer is
-the softmax function shown in figure \ref{fig:softmax}. The softmax have the
-property that all values will be output in the range $[0, 1]$ and sum to one,
+the softmax function shown in figure \ref{fig:softmax}. A property of the
+softmax is that all values will be output in the range $[0, 1]$ and sum to one,
 making it conveniently interpreted as probabilities of different classes or
 categories. The mathematical definition is for a set $x_1, ..., x_K$:
 
@@ -255,19 +258,25 @@ categories. The mathematical definition is for a set $x_1, ..., x_K$:
 
 \subsubsection{Weight sharing}
 
-In order to constrain the number of parameters and use the fact that some
-features are invariant of where in the data they are, e.g. the pattern $1, 2,
-3, 4$ in the beginning, middle, or the end of the data, one often uses
-convolutions (where $*$ is the convolution operator):
+In order to construct effective models with less number of parameters the fact
+is used that some features are invariant of where in the data they are, e.g.
+the pattern $1, 2, 3, 4$ in the beginning, middle, or the end of the data. To
+this end, convolutions are used (where $*$ is the convolution operator):
 
 \begin{equation}
     y = w * x + b
 \end{equation}
 
 These kind of networks are usually referred to as \textit{convolutional neural
-networks} (CNN) \cite{lecun1989backpropagation}. The notation becomes a bit more tricky here since the
-convolutions are commonly done in two dimensions with 3-dimensional kernels
-($w$). These are commonly used in neural networks for images.
+networks} (CNN) \cite{lecun1989backpropagation}. The notation becomes a bit
+more tricky here since the convolutions are commonly done in two dimensions
+with 3-dimensional kernels ($w$). These are commonly used in neural networks
+for images. It is common to use an other form of layer in conjunction with
+convolutional layers called \textit{pooling} layers. These are used to reduce
+the dimensionality from one layer to another and are very similar to
+convolutions, but instead of kernels with varying weights, a max operation
+\cite{huang2007unsupervised} or average operation \cite{lecun1998gradient} is
+applied (average pooling is a kernel with all weights being equal).
 
 \subsection{Problem statement}
 
@@ -280,7 +289,7 @@ these are non-trivial to find out.
 Problems also arise when learning in real time by collecting experience. Robots
 must be able to evaluate their policies regularly at a high rate which is
 complicated by adding a deep convolutional neural network for pose detection.
-Also, learning tasks within a feasible time frame is harder when data
+Also, learning tasks within a reasonable time frame is harder when data
 collection and policy updates happen in real time. The approach of
 distributing collection of experience over several robots will be evaluated in
 this thesis for handling this problem.
