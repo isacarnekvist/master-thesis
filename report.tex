@@ -3,8 +3,11 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{subfigure}
+\usepackage{graphicx}
 \usepackage{listings}
 \usepackage{lmodern}
+\usepackage{amsfonts}
+\usepackage{algorithm,algorithmic}
 \lstset{
     language=python,
     breaklines=true,
@@ -19,15 +22,17 @@
 }
 
 \title{Parallelized deep reinforcement learning for robotic manipulation}
-\subtitle{Master thesis specification and schedule}
+\subtitle{Pilot study}
 \author{Isac Arnekvist \\ \texttt{isacar@kth.se} \\ KTH Robotics Perception and Learning \\ Supervisor: Johannes A. Stork}
 
 \begin{document}
 \maketitle
 \tableofcontents
+\include{introduction}
+\include{related}
 \include{background}
 \include{method}
-\include{schedule}
+\include{experiments}
 
 \bibliography{citations}{}
 \bibliographystyle{unsrt}

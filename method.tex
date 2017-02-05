@@ -1,25 +1,44 @@
 \section{Method}
 
-\subsection{Examination method}
+\subsection{Manipulation task}
 
-Preliminary method is using the mentioned distributed version of NAF and extend
-it with pose estimates from a convolutional neural network. This network is
-pretrained as in \cite{yahya2016collective} by randomly placing objects and the
-end-effector and this way generating training data. Several robots will be used
-to parallelize the training process. The preliminary manipulation task is pushing
-of objects to some random target position.
+The task to be learned is to push an object from and to random positions within
+the workspace. The robotic arms to be used for this have 4 degrees of freedom
+and can be controlled by either using a cartesian controller, or directly
+sending commands to the servos. They do not support torque control.
 
-\subsection{Conditions}
+\subsection{Sensors setup and algorithms}
 
-There will be need for several robot setups, each including a robot,
-computer, and camera. These will have to be able to communicate with a separate
-computer responsible for training the policies/neural networks. In the ideal
-case, this computer is supplied and has a graphics card compatible with modern
-neural network libraries.
+One gets the impression that robots that learn without human demonstration is a
+sought-for feature. This was done by Finn and Levine \cite{finn2016deep} by
+first randomly interacting with a set of objects but is more straightforward
+when having torque-controlled arms. This is due to objects entirely blocking a
+path if using walls or a chain of objects pushing an object out of the
+configuration space if not using walls. The reward based approach like Gu et
+al. \cite{gu2016deep} does not have this disadvantage since you are learning
+from one object at a time. On the other hand, the inputs to the RL algorithm
+are known target and robot poses. It might be a feasible idea to prepend pose
+estimation from a CNN \cite{yahya2016collective,chebotar2016path,levine2016end}
+although it was shown by Yahya et al. \cite{yahya2016collective} that small
+camera offsets dramatically affected the accuracy in a negative way. A good way
+to handle this could be to instead estimate relative positions of targets with
+respect to the end-effector and randomly sample camera positions during
+training. This way the camera might be more robust to translations, and a
+locally trained transformation from camera frame to robot frame might not be
+needed. A fallback strategy if this is too hard to finish during this master
+thesis would be to instead train using fixed camera offsets. Like Gu et al.
+\cite{gu2016deep} the distributed version of NAF is to be implemented and
+evaluated for how it scales with more collectors, especially because there is
+GPU server available in contrast to their experiment.
 
-\subsection{Limitations}
+\subsection{Data collection}
 
-A proof of concept should be done with a corresponding report (the thesis).
-There are no requirements for implementation of code that should be delivered
-as libraries etc. The main contribution is the thesis. All code used for
-conducting the experiments will be openly published on GitHub.
+For the CNN pretraining part, labels can be derived from measuring poses with
+either a LiDAR, a separate camera with a fixed offset, or by measuring the
+offset to the image collecting camera. All the cameras have RGBD images making
+the labeling of poses relatively straightforward, although the depth channel
+will not be used as input for training the neural network or inference. The
+exact method choice for labeling will have to be decided ad hoc depending on
+what is the easiest. The arms have a suction cup that will be used to place the
+objects at sampled positions, and then the arm will be placed at some random
+relative position to the target.
