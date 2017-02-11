@@ -213,7 +213,7 @@ $t$. Given a sample tuple $x_i = (S_t, S_{t+1}, A_t, R_{t+1})$, let the
 temporal-difference error for this sample to be defined as:
 
 \begin{equation}
-    \delta_i = Q(S_{t}, A_t) - \left[ R_{t+1} + V(S_{t+1}) \right]
+    \delta_i = Q(S_{t}, A_t) - \left[ R_{t+1} + \gamma V(S_{t+1}) \right]
 \end{equation}
 
 Define a priority $p_i$ of sample $x_i$ as:
@@ -240,10 +240,13 @@ the gradient with respect to each sample $x_i$ can be weighted by:
 \end{equation}
 
 The parameter $\beta \geq 0$ can be varied during training, and it is argued that
-the unbiased gradient are more important towards the end when the policy is
+the unbiased gradients are more important towards the end when the policy is
 converging. They varied this parameter reaching $\beta = 1$ only towards the
 end of the training. It is not clear from the article but it is assumed that
 training starts with $\beta = 0$.
+
+\subsection{Adam}
+\cite{kingma2014adam}
 
 %\subsection{Motion planning by a predictive model}
 %
