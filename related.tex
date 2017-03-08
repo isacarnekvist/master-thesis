@@ -142,6 +142,74 @@ so instead using a GPU might increase the effect of more collectors.
     \label{algo:async_naf}
 \end{algorithm}
 
+\subsection{Neural fitted Q-iteration}
+
+One method for discrete action spaces is called \textit{neural fitted Q-iteration} \cite{riedmiller2005neural}
+and estimates the Q-function using a neural network where the temporal difference is minimized. The
+policy is then attained by choosing the action with the highest q-value by searching.
+
+\subsection{Deep deterministic policy gradient}
+
+An alternative continuous Q-learning method to the NAF formulation is an
+actor-critic approach called Deep Deterministic Policy Gradient (DDPG)
+\cite{lillicrap2015continuous}. Separate networks are defined for the
+Q-function (critic) and a deterministic policy $\mu$ (actor).
+
+\begin{equation}
+    Q^\mu(s_t, u_t) = \mathbb{E}_{s_{t+1}}\left[ r_t + \gamma Q^\mu(s_{t+1}, \mu (s_{t+1})) \right]
+\end{equation}
+
+The Q-function is trained by optimizing the temporal difference error, and the
+policy is trained by updating its parameters $\theta_\mu$ according the policy
+gradient. The policy gradient in equation (\ref{eq:ddpg_policy_gradient}) was
+shown to be the gradient of the expected value of the return with respect to
+its parameters \cite{lever2014deterministic}. The expected return is below
+notated $J$.
+
+\begin{align}
+    \nabla_{\theta_\mu}J &= \nabla_{\theta_\mu} \mathbb{E}_s \left[\sum_{t=1}^\infty \gamma^{t - 1} r_t \right] \\
+                         &= \mathbb{E}_s \left[\nabla_u Q(s, \mu(s)) \nabla_{\theta_\mu} \mu(s|\theta_\mu) \right] \label{eq:ddpg_policy_gradient}
+\end{align}
+
+Note that the product in the expectation in equation
+\ref{eq:ddpg_policy_gradient} is a matrix multiplication. The left hand side is
+a $1 \times n_u$ matrix where $n_u$ is the dimensionality of the actions. The
+right hand side is a $n_u \times n_\theta$ matrix, where $n_\theta$ is the
+number of parameters in the actor model. The expectation is over the states $s$
+in the environment, and can be approximated by drawing $N$ samples from
+interactions with the environment:
+
+\begin{equation}
+    \nabla_{\theta_\mu}J = \frac{1}{N} \sum_{n=1}^N \nabla_a Q(s, \mu(s)) \nabla_{\theta_\mu} \mu(s|\theta_\mu)
+\end{equation}
+
+Since the Q-network fits to its own values in a recursive way, it was
+experienced to be unstable. This was solved by having separate target networks
+$Q'$ and $\mu'$. Mean square error loss $\mathit{L}$ of the temporal
+differences errors were calculated by:
+
+\begin{equation}
+    y_i = r_i + \gamma Q'(s_{i+1}, \mu'(s_{i+1}))
+\end{equation}
+
+\begin{equation}
+    \mathit{L} = \frac{1}{N} \sum_{i=1}^N \left[y_i - Q(s_i, u_i)) \right]^2
+\end{equation}
+
+Target networks were then slowly updated by $\tau < 1$:
+
+\begin{equation}
+    \theta_{\mu'} = \tau \theta_{\mu} + (1 - \tau) \theta_{\mu'}
+\end{equation}
+\begin{equation}
+    \theta_{Q'} = \tau \theta_{Q} + (1 - \tau) \theta_{Q'}
+\end{equation}
+
+The networks were setup to have two hidden layers of $400$ and $300$ units
+each.  All hidden layers had ReLU activation functions, output of the action
+network was bounded by using tanh activation functions. The method was shown to
+solve a variety of task with continuous controls.
+
 \subsection{Spatial softmax in pose estimation}
 
 Levine et al. \cite{levine2016end} proposed an architecture for a CNN that
@@ -246,7 +314,37 @@ end of the training. It is not clear from the article but it is assumed that
 training starts with $\beta = 0$.
 
 \subsection{Adam}
-\cite{kingma2014adam}
+
+A method commonly used for optimizing neural networks is called Adam
+\cite{kingma2014adam}.  Updates to parameters of the function with loss
+function $f(\theta)$ are done by first and second order estimates of the
+gradients $g_t = \nabla_{\theta_t} f(\theta_{t-1})$. The current timestep is
+annotated $t$ and starts with $t = 1$, this is used to bias-correct
+the first and second order estimates:
+
+\begin{equation}
+    m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t
+\end{equation}
+
+\begin{equation}
+    v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2
+\end{equation}
+
+\begin{equation}
+    \mathbb{E}\left[g \right] \approx \hat{m}_t = \frac{m_t}{1- \beta_1^t}
+\end{equation}
+
+\begin{equation}
+    \mathbb{E}\left[g^2 \right] \approx \hat{v}_t = \frac{v_t}{1- \beta_2^t}
+\end{equation}
+
+Here $\beta_1, \beta_2 \in [0, 1)$ are hyperparameters. The updates are done
+with stepsize $\alpha$ according to ($\epsilon >0$ to ensure no division by zero):
+
+\begin{equation}
+    \theta_t = \theta_{t-1} - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t - \epsilon}}
+\end{equation}
+
 
 %\subsection{Motion planning by a predictive model}
 %
