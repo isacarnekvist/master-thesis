@@ -1,0 +1,27 @@
+\section{Conclusions and future work}
+
+In this thesis, NAF was evaluated in both a simulated setting and distributed
+over several robots. Initial experiments with simple reaching tasks worked
+fine, but extending this to a pushing task failed, even after simplifications
+like keeping starting and goal positions fixed. This could either be due to
+some error in the implementation that did not affect the simpler reaching task,
+or that the restriction to a quadratic advantage function could not represent
+the bi-modal nature of the task. DDPG however could solve this task but did not
+prove stable under noisy controls and observations. Reformulation of the
+problem as a partially observable Markov decision process might be an
+interesting way forward since highly accurate sensors are not always what are
+seen in reality.
+
+Regarding pose estimation, a network was proposed to incorporate depth
+information, a common feature nowadays even in consumer products. Simulation
+showed better results when adding this feature, although for real data no
+benefit was seen. Future experiments could include replacing zero representing
+missing depth values with something else, for example the maximum distance
+registered. Relative pose estimation was clearly shown to learn to be capable
+of learning the geometric interpretation from 2D data, although the precision
+was too low for this use case. This could have been due to the neural network
+not being able to represent this accurately enough, the resolution of input
+data or intermediary representations being too low, or labels during training
+being too noisy requiring more data for higher quality predictions. The former
+case is somewhat supported by the case that simulated data giving 2D
+coordinates also produced noisy estimates.

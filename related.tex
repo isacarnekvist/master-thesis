@@ -1,19 +1,60 @@
 \section{Related work}
 
-Concepts and vocabulary used here assume previous knowledge of RL and neural
-networks. These concepts are more thoroughly described in the background
-section, section \ref{sec:background}.
+This section will present research findings in the area of reinforcement
+learning and perception starting with applications and findings in the
+discrete-action setting, extending this to continuous actions, and finally
+applying these to real world robotic scenarios. In conjunction with this, pose
+estimation techniques are researched. Also a finding commonly used in
+off-policy algorithms, Prioritized experience replay, is summarized.
+
+
+\subsection{Q-function estimation using neural networks}
+
+For continuous state spaces, Q-learning can no longer be solved by tabular
+methods, and in practice many discrete state space problems are also too large
+to be represented and learned this way. Therefore it was proposed that the
+Q-function be estimated using a neural network updated in a standard Q-learning
+fashion, i. e. for one sample at a time after one interaction with the
+environment \cite{riedmiller1999concepts}. Here, the action maximizing the
+value going from the successor state is found by searching since there is a
+finite amount of actions. However this was shown to need several tens of
+thousands of episodes before convergence to optimal or near optimal policies
+\cite{riedmiller1999concepts}. Instead of updating the Q-function on-line one
+sample at a time, all state-action-successor state tuples $(s, a, s')$ can be
+stored and used to update the network off-line using batches, which was found
+to converge faster \cite{riedmiller2005neural}.
+
+\subsection{Recent progress in the discrete action setting}
+
+For playing the board game Go, a four-step process was proposed
+\cite{silver2016mastering}. The first step was to train a policy in a
+supervised fashion predicting expert moves. Thereafter, the policy was improved
+by playing games against previous iterations of the same policy and updating
+using policy gradient methods. A value function was then estimated given the
+best policy from the previous step, this was then used to perform Monte Carlo
+tree search to find the best action. The resulting policy/algorithm later beat the world
+champion Lee Sedol \cite{deepmind_2017}.
+
+For continuous state spaces in contrast to Go, namely images from the screen of
+video games, a deep-Q-network (DQN) was proposed \cite{mnih2013playing}. Here,
+a sequence of images (neighboring in time) from the games were input to a
+convolutional neural network. The final layer was a fully connected layer which
+outputs a state-action estimate for each action. This enabled faster selection
+of the optimal action due to one single forward pass of the network. The
+network was trained and evaluated on seven Atari games, surpassing a human
+expert in three of the games, and surpassing previous methods in six of the
+games.
+
 
 \subsection{Normalized Advantage Functions (NAF)}
 
-In order to extend Q-learning, normally used for discrete state and action
-spaces to continuous spaces, Gu et al. \cite{gu2016continuous} proposes a
-relatively simple solution called normalized advantage functions (NAF). They
-argue after doing simulation experiments that this algorithm is an effective
-alternative to recently proposed actor-critic methods and that it learns faster
-with more accurate resulting policies. First, the action-value function is
-divided into a sum of the value function $V$ and what they call an advantage
-function $A : \mathbb{R}^d \longmapsto \mathbb{R}$:
+In order to extend Q-learning to continuous state and action spaces, Gu et al.
+\cite{gu2016continuous} proposes a relatively simple solution called normalized
+advantage functions (NAF). They argue after doing simulation experiments that
+this algorithm is an effective alternative to recently proposed actor-critic
+methods and that it learns faster with more accurate resulting policies. First,
+the action-value function is divided into a sum of the value function $V$ and
+what they call an advantage function $A : \mathbb{R}^d \longmapsto \mathbb{R}$:
 
 \begin{equation}
     Q(\mathbf{x}, \mathbf{u}) = A(\mathbf{x}, \mathbf{u}) + V(\mathbf{x})
@@ -142,13 +183,8 @@ so instead using a GPU might increase the effect of more collectors.
     \label{algo:async_naf}
 \end{algorithm}
 
-\subsection{Neural fitted Q-iteration}
-
-One method for discrete action spaces is called \textit{neural fitted Q-iteration} \cite{riedmiller2005neural}
-and estimates the Q-function using a neural network where the temporal difference is minimized. The
-policy is then attained by choosing the action with the highest q-value by searching.
-
 \subsection{Deep deterministic policy gradient}
+\label{sec:ddpg}
 
 An alternative continuous Q-learning method to the NAF formulation is an
 actor-critic approach called Deep Deterministic Policy Gradient (DDPG)
@@ -210,6 +246,58 @@ each.  All hidden layers had ReLU activation functions, output of the action
 network was bounded by using tanh activation functions. The method was shown to
 solve a variety of task with continuous controls.
 
+\subsection{Guided Policy Search}
+
+Guided policy search (GPS) \cite{levine2013guided} maximizes the expected
+return $J(\theta)$ using trajectories $\zeta^i_{1:T} = \{(x_1^i, u_1^i), ...,
+(x_T^i, u_T^i)\}$ and the respective rewards $\{r_1^i, ..., r_T^i\}$. The
+superscript $i$ denotes the sample. In order to use trajectories from previous
+policies, importance sampling is used and the quantity to maximize is
+
+\begin{equation}
+    \mathbb{E}[J(\theta)] \approx \sum_{t=1}^T \frac{1}{Z(\theta)} \sum_{i=i}^m \frac{\pi_\theta(\zeta^i_{1:t})}{q(\zeta^i_{1:t})}r_t^i
+\end{equation}
+
+The algorithm is iteratively maximizing this expectation and providing new
+guiding samples by optimizing sampled trajectories. This optimization is done
+using iterative methods and this way, locally optimal trajectories can be found
+and added as guiding samples in the above expectation.
+
+\subsection{Asynchronous Advantage Actor-Critic (A3C)}
+
+An on-policy actor-critic method was proposed that distributes the training
+and exploration in simulated environments over several CPU cores
+\cite{mnih2016asynchronous}. Each thread executes a sequence of actions and
+then calculates the gradients, given that sequence, which are then sent to a
+central parameter thread. The actor output $\pi(a|s)$ is parameterized as a Gaussian distribution
+with a mean vector $\mathbf{\mu}$ and covariance matrix $\sigma\mathbf{I}$ where $\mathbf{\mu}$
+and $\sigma$ are outputs from the actor network. Here $\pi(a|s)$ is the probability of the action $a$ given
+some state $s$.
+During exploration, actions $a_1, ..., a_T$ given states $s_1, ..., s_T$ are sampled from this distribution and the quantity being maximized
+is:
+
+\begin{equation}
+    \ell(a_{1:T}, s_{1:T}, \theta_\pi, \theta_V) = \sum_{t=1}^T \log \pi (a_t|s_t, \theta_\pi) (R_t - V(s_t|\theta_V))
+\end{equation}
+
+Here $V$ is the critic network, and $R_t$ is the estimated return given by:
+
+\begin{equation}
+    R_t =
+    \begin{cases}
+        r_t + V(s_{t+1}|\theta_V) & \text{if } t = T\\
+        r_t + R_{t+1} & \text{if } t < T
+    \end{cases}
+\end{equation}
+
+In the central thread, gradients are applied to the parameters and local models
+then update their parameters by querying the central thread. This was shown to
+solve a range of manipulation tasks in simulation, although the authors are
+somewhat vague about the results for the continuous action case. For the
+discrete action case, the formulation differs somewhat, but results show a
+substantial cut in training time on Atari games when using 16 CPU cores
+compared to the original method where a GPU is used \cite{mnih2013playing}.
+
 \subsection{Spatial softmax in pose estimation}
 
 Levine et al. \cite{levine2016end} proposed an architecture for a CNN that
@@ -241,12 +329,44 @@ above expressions as:
     f_{cy} &= \sum_{i,j} j s_{ij}
 \end{align}
 
+As a measure of certainty of the expected position, is was proposed to use the
+spatial softmax output at the expected position \cite{finn2016deep2}. Other
+possible methods are naturally the estimated variance of the 2D position as
+well as the maximum output of the spatial softmax.
+
+\subsection{Predicting poses as 2D image coordinates}
+
+Since 2D coordinates have been shown to sufficient for 3D pose estimation,
+alternative methods could include first regressing to known 2D coordinates.
+Directly regressing to poses labeled in the image have been successfully
+implemented by first creating Gaussian heat-maps as targets and then regressing
+last layer convolution feature maps directly to these heat-maps
+\cite{newell2016stacked,tompson2014joint}. These networks were used to predict
+human poses in the image frame, defined as position of joints and other key
+points like the nose. The networks successfully learned not only visible parts,
+but could infer parts faced away from the camera. State-of-the-art performance
+was attained by stacking several identical (regarding architecture) networks
+called ''hourglass''-modules. The modules apply a series of convolutions,
+followed by a series of upscalings, to output the same shape as the input.
+Shortcut connections are also introduced between feature maps of the same size,
+passed through $1x1$ convolutions \cite{newell2016stacked}.
+
+\subsection{Human joint 3D relative pose prediction}
+
+Research by Park et al \cite{park20163d} regresses 3D joint poses relative to a
+root joint from images by using a convolutional neural network. The network
+ends with two separate fully connected parts, one which regresses to the 2D
+image coordinates of each joint, and one which regresses to the 3D relative
+joint pose. They argue that by simultaneously training the network with 2D and
+3D labels, this relationship is implicitly learned.
+
+
 \subsection{Door opening with human demonstration}
 
 Chebotar et al. \cite{chebotar2016path} demonstrates door opening tasks
-initialized from human demonstration using methods called Guided Policy Search
-(GPS) and Policy Improvement with Path Integrals (PI$^2$). They demonstrate
-that they can learn this task outputting torque control from visual input. This is
+initialized from human demonstration using GPS and Policy Improvement with Path
+Integrals (PI$^2$) \cite{theodorou2010generalized}. They demonstrate that they
+can learn this task outputting torque control from visual input. This is
 extended by Yahya et al. \cite{yahya2016collective} to be trained
 simultaneously on several robots. In both cases, torque commands are the output
 of a neural network where the first part takes visual input and is pretrained
@@ -255,10 +375,10 @@ in figure \ref{fig:gps_net}. Since the robot poses were labeled in the robot
 base frame and the camera offsets were somewhat random, a linear mapping from
 the neural network output to the base frame was learned separately for each of
 the robots. The authors evaluated the trained policy on a previously unseen
-door with different translations and rotations. The mean success rate was
-90\%. They also tried offsetting the camera 1) 5 cm towards the ground and 2) 4
-cm backwards. The respective success rates for these translations were 52 \%
-and 54 \%.
+door with different translations and rotations. The mean success rate was 90\%.
+They also tried offsetting the camera 1) 5 cm towards the ground and 2) 4 cm
+backwards. The respective success rates for these translations were 52 \% and
+54 \%.
 
 \begin{figure}[h]
     \centering
@@ -312,38 +432,6 @@ the unbiased gradients are more important towards the end when the policy is
 converging. They varied this parameter reaching $\beta = 1$ only towards the
 end of the training. It is not clear from the article but it is assumed that
 training starts with $\beta = 0$.
-
-\subsection{Adam}
-
-A method commonly used for optimizing neural networks is called Adam
-\cite{kingma2014adam}.  Updates to parameters of the function with loss
-function $f(\theta)$ are done by first and second order estimates of the
-gradients $g_t = \nabla_{\theta_t} f(\theta_{t-1})$. The current timestep is
-annotated $t$ and starts with $t = 1$, this is used to bias-correct
-the first and second order estimates:
-
-\begin{equation}
-    m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t
-\end{equation}
-
-\begin{equation}
-    v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2
-\end{equation}
-
-\begin{equation}
-    \mathbb{E}\left[g \right] \approx \hat{m}_t = \frac{m_t}{1- \beta_1^t}
-\end{equation}
-
-\begin{equation}
-    \mathbb{E}\left[g^2 \right] \approx \hat{v}_t = \frac{v_t}{1- \beta_2^t}
-\end{equation}
-
-Here $\beta_1, \beta_2 \in [0, 1)$ are hyperparameters. The updates are done
-with stepsize $\alpha$ according to ($\epsilon >0$ to ensure no division by zero):
-
-\begin{equation}
-    \theta_t = \theta_{t-1} - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t - \epsilon}}
-\end{equation}
 
 
 %\subsection{Motion planning by a predictive model}

@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper]{scrartcl}
+\documentclass[12pt,a4paper,abstract=on,bibliography=totoc]{scrartcl}
 \usepackage{cite}
 \usepackage{amsmath}
 \usepackage{hyperref}
@@ -8,6 +8,7 @@
 \usepackage{lmodern}
 \usepackage{amsfonts}
 \usepackage{algorithm,algorithmic}
+\usepackage[swedish,english]{babel}
 \lstset{
     language=python,
     breaklines=true,
@@ -21,23 +22,27 @@
     numbers=left
 }
 
-\title{Parallelized deep reinforcement learning for robotic manipulation}
+\title{Reinforcement learning for robotic manipulation}
 \subtitle{Master thesis}
-\author{Isac Arnekvist \\ \texttt{isacar@kth.se} \\ KTH Robotics Perception and Learning \\ Supervisor: Johannes A. Stork}
+\author{Isac Arnekvist \\ \texttt{isacar@kth.se} \\ KTH Robotics Perception and Learning lab \\ Supervisor: Johannes A. Stork}
 
 \begin{document}
 \maketitle
+\include{abstract}
 \tableofcontents
 \include{introduction}
 \include{related}
 \include{background}
 
-%\include{method} % <- Don't include at all?
+\include{method}
 
 \include{experiment1}
 \include{experiment2}
 \include{experiment3}
 \include{experiment4}
+\include{experiment5}
+\include{experiment6}
+\include{conclusions}
 
 \bibliography{citations}{}
 \bibliographystyle{unsrt}

@@ -1,0 +1,60 @@
+\begin{abstract}
+
+Reinforcement learning was recently successfully used for real-world robotic
+manipulation tasks, without the need for human demonstration, using a
+\textit{normalized advantage function}-algorithm (NAF). Limitations on the
+shape of the advantage function however poses doubts to what kind of policies
+can be learned using this method. For similar tasks, convolutional neural
+networks have been used for pose estimation from images taken with
+fixed-position cameras. For some applications however, this might not be a
+valid assumption. It was also shown that the quality of policies for robotic
+tasks severely deteriorates from small camera offsets. NAF is in this thesis
+successfully used to solve simple tasks on real robotic systems where data
+collection is distributed over several robots, and learning is done on a
+separate server.  Using NAF to learn a pushing task, with clear multi-modal
+properties, however fails to converge to a good policy, both on the real robots
+and in simulation. Deep deterministic policy gradient (DDPG) is instead used
+in simulation and successfully learns to solve the task. The learned policy is
+then applied on the real robots and accomplishes to solve the task in the real
+setting as well. Pose estimation from fixed position camera images is learned
+and the policy is still able to solve the task using these estimates. By
+defining a coordinate frame from an object visible to the camera, in this case
+the robot arm, a neural network learns to regress the pushable objects pose in
+this frame without the assumption of a fixed camera. However, the precision of
+the predictions were too inaccurate to be used for solving the pushing task.
+Further modifications to this approach could however show to be a feasible
+solution to randomly placed cameras with unknown poses.
+
+\end{abstract}
+
+\selectlanguage{swedish}
+
+\newpage
+\begin{abstract}
+
+Reinforcement learning har nyligen använts framgångsrikt för att lära
+icke-simulerade robotar uppgifter med hjälp av en \textit{normalized advantage
+function}-algoritm (NAF), detta utan att använda mänskliga demonstrationer.
+Restriktioner på funktionsytorna som använts kan dock visa sig vara
+problematiska för generalisering till andra uppgifter. För pose-estimering har
+i liknande sammanhang convolutional neural networks använts med bilder från
+kamera med konstant position. I vissa applikationer kan dock inte kameran
+garanteras hålla en konstant position och studier har visat att kvaliteten på
+policys kraftigt förvärras när kameran förflyttas. NAF appliceras i denna
+uppsats framgångsrikt på enklare problem där datainsamling är distribuerad över
+flera robotar och inlärning sker på en central server. Vid applicering på en
+uppgift med tydliga multimodala egenskaper misslyckas dock NAF. Deep
+deterministic policy gradient (DDPG) appliceras istället på problemet och lär
+sig framgångsrikt att lösa problemet i simulering. Den inlärda policyn
+appliceras sedan framgångsrikt på riktiga robotar. Pose-estimering genom att
+använda en fast kamera implementeras också framgångsrikt. Genom att definiera
+ett koordinatsystem från ett föremål i bilden med känd position, i detta fall
+robotarmen, kan andra föremåls positioner beskrivas i denna koordinatram med
+hjälp av neurala nätverk. Dock så visar sig precisionen vara för låg för att
+appliceras på robotar. Resultaten visar ändå att denna metod, med ytterligare
+utökningar och modifikationer, skulle kunna lösa problemet.
+
+
+\end{abstract}
+
+\selectlanguage{english}

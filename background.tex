@@ -166,8 +166,9 @@ more precise, one famous example of a time difference method is
 Q-learning is an example of an \textit{off-policy} method. This means that you
 can use a second, or derived, policy for exploration, but the algorithm still
 finds the optimal policy. The other family of methods is called
-\textit{on-policy} methods. In this case, the exploring policy is the
-same as the policy being improved.
+\textit{on-policy} methods and are characterized by that the expectation being
+maximized is with respect to the exploring policy. In contrast to this the
+expectation in the off-policy case is only dependent on the environment.
 
 \subsection{Neural networks}
 
@@ -228,6 +229,21 @@ The ReLU is defined as:
     \text{relu}(x) = \max (0, x)
 \end{equation}
 
+Another addition to the family of activation functions is the
+\textit{exponential linear unit} (ELU) \cite{clevert2015fast} which has the
+benefit of propagating the gradient also for negative input values since the
+limit for large negative input values is $-1$ rather than $0$ as for the ReLU.
+This was shown to speed up training and lowering classification test errors.
+The ELU is defined as (with $\alpha$ usually being set to $1.0$):
+
+\begin{equation}
+    f(\alpha, x) =
+    \begin{cases}
+        \alpha (e^{x} - 1) & \text{if } x < 0 \\
+        x & \text{if } x \geq 0
+    \end{cases}
+\end{equation}
+
 For classification networks, a common function to have in the output layer is
 the softmax function shown in figure \ref{fig:softmax}. A property of the
 softmax is that all values will be output in the range $[0, 1]$ and sum to one,
@@ -278,23 +294,101 @@ convolutions, but instead of kernels with varying weights, a max operation
 \cite{huang2007unsupervised} or average operation \cite{lecun1998gradient} is
 applied (average pooling is a kernel with all weights being equal).
 
-\subsection{Problem statement}
+\subsubsection{Optimizers}
 
-Manipulation tasks that seem trivial to a human can be hard to learn for
-robots, especially from scratch without initial human demonstration due to high
-sample complexity. Recent research suggests ways to do this but are based on
-that you know the poses of the objects and the end-effector. For some scenarios
-these are non-trivial to find out.
+A method commonly used for optimizing neural networks is called Adam
+\cite{kingma2014adam}. Updates to parameters of the function with loss
+function $f(\theta)$ are done by first and second order estimates of the
+gradients $g_t = \nabla_{\theta_t} f(\theta_{t-1})$. The current timestep is
+annotated $t$ and starts with $t = 1$, this is used to bias-correct
+the first and second order estimates:
 
-Problems also arise when learning in real time by collecting experience. Robots
-must be able to evaluate their policies regularly at a high rate which is
-complicated by adding a deep convolutional neural network for pose detection.
-Also, learning tasks within a reasonable time frame is harder when data
-collection and policy updates happen in real time. The approach of
-distributing collection of experience over several robots will be evaluated in
-this thesis for handling this problem.
+\begin{equation}
+    m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t
+\end{equation}
 
-\subsection{Research question}
+\begin{equation}
+    v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2
+\end{equation}
 
-How can deep and distributed reinforcement learning be used for learning and
-performing dynamic manipulation tasks with unknown poses.
+\begin{equation}
+    \mathbb{E}\left[g \right] \approx \hat{m}_t = \frac{m_t}{1- \beta_1^t}
+\end{equation}
+
+\begin{equation}
+    \mathbb{E}\left[g^2 \right] \approx \hat{v}_t = \frac{v_t}{1- \beta_2^t}
+\end{equation}
+
+Here $\beta_1, \beta_2 \in [0, 1)$ are hyperparameters. The updates are done
+with stepsize $\alpha$ according to ($\epsilon >0$ to ensure no division by zero):
+
+\begin{equation}
+    \theta_t = \theta_{t-1} - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t - \epsilon}}
+\end{equation}
+
+Adam can be seen as a generalization of RMSProp where $\beta_1 = 0$
+\cite{tieleman2012lecture} which implies that only a running second order
+estimate is used. This has been successfully used for training of on-policy
+algorithms \cite{mnih2016asynchronous} where gradients from previous policies
+included in the running mean might not be suitable for current policy updates.
+
+\subsubsection{Avoiding overfitted networks}
+
+A classical approach to regularize neural networks is adding a scaled L2-norm
+of the parameters to the loss. Another way shown to be effective, both for fully
+connected and convolutional neural networks, is called dropout
+\cite{srivastava2014dropout}. During training time, units are with probability
+$p$ set to zero and non-zeroed outputs are scaled by $1/p$. Effectively, this
+means inference during training time is done using random subgraphs of the
+neural network, and inference during test time is done by average voting from a
+collection of those subgraphs. To alleviate the problem of overfitting when
+using images, it is common use data augmentation, i. e. applying random
+scaling, translations, noise etc. to the images (e.g.
+\cite{ciregan2012multi,simard2003best,krizhevsky2012imagenet}).  Another
+approach is to synthetically generate a larger image database by overlaying
+parts of the images with patches of other objects \cite{ghadirzadeh2017deep}.
+
+\subsubsection{Batch normalization}
+
+As the weights in one layer changes during training, the following layers have
+to adapt to this change. In fact, later layers constantly have to adopt to
+changes in any of the previous layers during training, something called
+\textit{internal covariance shift}. It was shown that this problem can be
+solved by adding intermediate normalization layers, called \textit{batch
+normalization} \cite{ioffe2015batch}. These layers whiten the activations of
+the previous layer, i. e. element-wise subtraction of the mini-batch mean and
+divide by the square root of the variance. Since the statistics are calculated
+per mini-batch, they argue that this acts as a regularizer, and they
+empirically show that dropout in some cases are no longer needed. They argue
+that this is due to that the representation of one sample will shift
+differently depending of the other samples in the mini-batch. For some cases,
+whitening the outputs of the previous layer decreases what the next layer can
+represent, e. g. not saturating the sigmoid function in the subsequent layer.
+To alleviate this problem, the authors propose learnable parameters that ensure
+that the normalization layer, if needed, can represent the identity function.
+During inference, normalization is done on population estimates of the mean and
+variance. These population estimates are inferred using running mean and
+variance estimates attained during training. Using batch normalization showed
+to decrease the number of training step by a factor of 14 for some cases, and
+improving the test errors of previous state-of-the-art networks.
+
+%\subsection{Problem statement}
+%
+%Manipulation tasks that seem trivial to a human can be hard to learn for
+%robots, especially from scratch without initial human demonstration due to high
+%sample complexity. Recent research suggests ways to do this but are based on
+%that you know the poses of the objects and the end-effector. For some scenarios
+%these are non-trivial to find out.
+%
+%Problems also arise when learning in real time by collecting experience. Robots
+%must be able to evaluate their policies regularly at a high rate which is
+%complicated by adding a deep convolutional neural network for pose detection.
+%Also, learning tasks within a reasonable time frame is harder when data
+%collection and policy updates happen in real time. The approach of
+%distributing collection of experience over several robots will be evaluated in
+%this thesis for handling this problem.
+%
+%\subsection{Research question}
+%
+%How can deep and distributed reinforcement learning be used for learning and
+%performing dynamic manipulation tasks with unknown poses.
