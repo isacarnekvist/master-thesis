@@ -49,7 +49,14 @@ replay buffer to optimize the neural network.
 
 The algorithm was running for approximately one hour collecting $\approx 100k$
 state transitions. The learned policy and value functions are shown in figure
-\ref{fig:sim_moving_goal}.
+\ref{fig:sim_moving_goal}. The implementation, and the NAF formulation, clearly
+solves the task and is able to handle changing goal positions given as a part
+of the state. The value function estimates where less peaky around the goal
+position than expected, but has to do with the formulation of the reward. The
+reward being calculated from successor states, and a single action allowing the
+agent to move $5$ cm, gives a plateau of approximately $5$ cm around the goal
+from where the goal, and the maximum immediate reward, is reachable within one
+action.
 
 \begin{figure}[h]
     \centering

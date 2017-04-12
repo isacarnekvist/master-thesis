@@ -189,7 +189,8 @@ so instead using a GPU might increase the effect of more collectors.
 An alternative continuous Q-learning method to the NAF formulation is an
 actor-critic approach called Deep Deterministic Policy Gradient (DDPG)
 \cite{lillicrap2015continuous}. Separate networks are defined for the
-Q-function (critic) and a deterministic policy $\mu$ (actor).
+Q-function (critic) and a deterministic policy $\mu$ (actor), and the
+target quantity for the critic to predict becomes:
 
 \begin{equation}
     Q^\mu(s_t, u_t) = \mathbb{E}_{s_{t+1}}\left[ r_t + \gamma Q^\mu(s_{t+1}, \mu (s_{t+1})) \right]
@@ -215,7 +216,7 @@ number of parameters in the actor model. The expectation is over the states $s$
 in the environment, and can be approximated by drawing $N$ samples from
 interactions with the environment:
 
-\begin{equation}
+\begin{equation}\label{eq:policy_gradient}
     \nabla_{\theta_\mu}J = \frac{1}{N} \sum_{n=1}^N \nabla_a Q(s, \mu(s)) \nabla_{\theta_\mu} \mu(s|\theta_\mu)
 \end{equation}
 
@@ -244,7 +245,14 @@ Target networks were then slowly updated by $\tau < 1$:
 The networks were setup to have two hidden layers of $400$ and $300$ units
 each.  All hidden layers had ReLU activation functions, output of the action
 network was bounded by using tanh activation functions. The method was shown to
-solve a variety of task with continuous controls.
+solve a variety of task with continuous controls. Instead of performing the
+matrix multiplication in equation (\ref{eq:policy_gradient}) explicitly when
+using computational graph libraries, actor parameters $\theta_\mu$ are easily updated by
+maximizing the quantity (keeping critic parameters $\theta_Q$ fixed):
+
+\begin{equation}
+    Q(s, \mu(s|\theta_\mu)|\theta_Q)
+\end{equation}
 
 \subsection{Guided Policy Search}
 
@@ -252,16 +260,21 @@ Guided policy search (GPS) \cite{levine2013guided} maximizes the expected
 return $J(\theta)$ using trajectories $\zeta^i_{1:T} = \{(x_1^i, u_1^i), ...,
 (x_T^i, u_T^i)\}$ and the respective rewards $\{r_1^i, ..., r_T^i\}$. The
 superscript $i$ denotes the sample. In order to use trajectories from previous
-policies, importance sampling is used and the quantity to maximize is
+policies, importance sampling is used and the quantity to maximize is becomes:
 
 \begin{equation}
     \mathbb{E}[J(\theta)] \approx \sum_{t=1}^T \frac{1}{Z(\theta)} \sum_{i=i}^m \frac{\pi_\theta(\zeta^i_{1:t})}{q(\zeta^i_{1:t})}r_t^i
 \end{equation}
 
-The algorithm is iteratively maximizing this expectation and providing new
-guiding samples by optimizing sampled trajectories. This optimization is done
-using iterative methods and this way, locally optimal trajectories can be found
-and added as guiding samples in the above expectation.
+Here $q(\zeta^i)$ is the probability of the trajectory $\zeta^i$ under the
+distribution it was sampled from. The distribution $\pi_\theta$ gives the
+probability of a sequence of the current policy parameterized by $\theta$. The
+GPS algorithm iteratively maximizes this expectation and provides new guiding
+samples by optimizing sampled trajectories using methods such as
+\textit{iterative Linear Quadratic Regulator} (iLQR) \cite{tassa2012synthesis}
+or \text{Policy Improvement with Path Integrals} ($\mathbf{PI}^2$)
+\cite{theodorou2010generalized}. The found locally optimal trajectories can be
+added as guiding samples in the above expectation.
 
 \subsection{Asynchronous Advantage Actor-Critic (A3C)}
 

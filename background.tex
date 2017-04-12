@@ -267,7 +267,8 @@ categories. The mathematical definition is for a set $x_1, ..., x_K$:
     \centering
     \includegraphics[width=0.8\textwidth]{res/softmax.pdf}
 
-    \caption{Softmax function commonly used to convert a set of numbers $\in \mathbb{R}$ to probabilities of a discrete set of categories.}
+    \caption{Softmax function commonly used to convert a set of numbers $\in
+    \mathbb{R}$ to probabilities of a discrete set of categories.}
 
     \label{fig:softmax}
 \end{figure}
@@ -297,11 +298,11 @@ applied (average pooling is a kernel with all weights being equal).
 \subsubsection{Optimizers}
 
 A method commonly used for optimizing neural networks is called Adam
-\cite{kingma2014adam}. Updates to parameters of the function with loss
-function $f(\theta)$ are done by first and second order estimates of the
-gradients $g_t = \nabla_{\theta_t} f(\theta_{t-1})$. The current timestep is
-annotated $t$ and starts with $t = 1$, this is used to bias-correct
-the first and second order estimates:
+\cite{kingma2014adam}. Updates to parameters of the function with loss function
+$f(\theta)$ are done by first and second order estimates of the gradients $g_t
+= \nabla_{\theta_t} f(\theta_{t-1})$. The current timestep is annotated $t$ and
+starts with $t = 1$, this is used to bias-correct the first and second order
+estimates:
 
 \begin{equation}
     m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t
@@ -331,20 +332,23 @@ Adam can be seen as a generalization of RMSProp where $\beta_1 = 0$
 estimate is used. This has been successfully used for training of on-policy
 algorithms \cite{mnih2016asynchronous} where gradients from previous policies
 included in the running mean might not be suitable for current policy updates.
+Earlier commonly used methods include Adadelta \cite{zeiler2012adadelta},
+Adagrad \cite{duchi2011adaptive}, and momentum \cite{qian1999momentum}.
+
 
 \subsubsection{Avoiding overfitted networks}
 
 A classical approach to regularize neural networks is adding a scaled L2-norm
-of the parameters to the loss. Another way shown to be effective, both for fully
-connected and convolutional neural networks, is called dropout
+of the parameters to the loss. Another way shown to be effective, both for
+fully connected and convolutional neural networks, is called dropout
 \cite{srivastava2014dropout}. During training time, units are with probability
 $p$ set to zero and non-zeroed outputs are scaled by $1/p$. Effectively, this
 means inference during training time is done using random subgraphs of the
 neural network, and inference during test time is done by average voting from a
 collection of those subgraphs. To alleviate the problem of overfitting when
-using images, it is common use data augmentation, i. e. applying random
+using images, it is common to use data augmentation, i. e. applying random
 scaling, translations, noise etc. to the images (e.g.
-\cite{ciregan2012multi,simard2003best,krizhevsky2012imagenet}).  Another
+\cite{ciregan2012multi,simard2003best,krizhevsky2012imagenet}). Another
 approach is to synthetically generate a larger image database by overlaying
 parts of the images with patches of other objects \cite{ghadirzadeh2017deep}.
 
@@ -369,26 +373,20 @@ that the normalization layer, if needed, can represent the identity function.
 During inference, normalization is done on population estimates of the mean and
 variance. These population estimates are inferred using running mean and
 variance estimates attained during training. Using batch normalization showed
-to decrease the number of training step by a factor of 14 for some cases, and
+to decrease the number of training steps by a factor of 14 for some cases, and
 improving the test errors of previous state-of-the-art networks.
 
-%\subsection{Problem statement}
-%
-%Manipulation tasks that seem trivial to a human can be hard to learn for
-%robots, especially from scratch without initial human demonstration due to high
-%sample complexity. Recent research suggests ways to do this but are based on
-%that you know the poses of the objects and the end-effector. For some scenarios
-%these are non-trivial to find out.
-%
-%Problems also arise when learning in real time by collecting experience. Robots
-%must be able to evaluate their policies regularly at a high rate which is
-%complicated by adding a deep convolutional neural network for pose detection.
-%Also, learning tasks within a reasonable time frame is harder when data
-%collection and policy updates happen in real time. The approach of
-%distributing collection of experience over several robots will be evaluated in
-%this thesis for handling this problem.
-%
-%\subsection{Research question}
-%
-%How can deep and distributed reinforcement learning be used for learning and
-%performing dynamic manipulation tasks with unknown poses.
+\subsection{Problem statement}
+
+Manipulation tasks that seem trivial to a human can be hard to learn for
+robots, especially from scratch without initial human demonstration, due to
+high sample complexity. Recent research suggests ways to do this but are often
+based on that you know the poses of the objects and the end-effector. For some
+scenarios these are non-trivial to find out. Using a camera for pose detection
+has shown promising results but still assumes known camera offset or a fixed
+position of the camera.
+
+\subsection{Research question}
+
+How can deep and distributed reinforcement learning be used for learning and
+performing dynamic manipulation tasks with unknown poses.

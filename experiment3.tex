@@ -9,12 +9,21 @@ a more ideally set up environment.
 
 \subsection{Environment}
 
-The environment consisted of a circular object to push into some goal position.
-To simplify the problem, these locations were sampled approximately at the same
-position at every reset. This was in order to ignore rotations and translations
-of the problem and only examine whether the algorithm could learn this simpler
-scenario. The simulated end-effector was a single point and was sampled
-uniformly in the entire workspace. The reward was defined as $e^{-k_1 ||\mathbf{e
+The environment consisted of a circular object to push into some goal position
+and a simulated end-effector of infinitely small size. To simplify the problem,
+locations of the pushable object and goal were sampled approximately at the
+same position at every reset.  This was in order to ignore rotations and
+translations of the problem and only examine whether the algorithm could learn
+this simpler scenario. In particular, there was a concern that when the
+end-effector has to go 180 degrees around the object, a clear multi-modal
+solution exists and might be problematic due to the quadratic shape of the
+advantage function. To further make this point clear, taking the end-effector
+clockwise, or counter-clockwise, are equally good, but staying at the same
+position, or even worse pushing the object further from goal, lowers the
+return. Clearly, this has a multi-modal nature, with one mode being going
+around the object clockwise, and the other going counter-clockwise. The
+simulated end-effector was a single point and was sampled uniformly in the
+entire workspace. The reward was defined as $e^{-k_1 ||\mathbf{e
 - c}||} + e^{-k_2 ||\mathbf{c - g}||}$ where $\mathbf{e, c}$ and $\mathbf{g}$
 are the poses of the end-effector, the pushable circle, and the goal
 position.
@@ -40,7 +49,10 @@ target. This is illustrated in figure \ref{fig:naf_sim_failure}. In figure
 intuitively the optimal policy should be to go up or down, but not left or
 right. It is unclear if this is due to the quadratic shape of the advantage
 function being unable to represent this, or some other detail in the
-implementation.
+implementation. By a intuitive policy is meant to never push the object until the end-effector is
+positioned on the right side of the object, but naturally another possible policy could be to
+push the object in a circle towards the goal. This did however not happen when evaluating the policy
+by running test runs in the environment, as can be seen in figure \ref{fig:naf_sim_failure}.
 
 \begin{figure}[h!]
     \centering
