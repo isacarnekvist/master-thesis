@@ -1,35 +1,51 @@
-\section{Exp1: Simulated reaching task}
+\chapter{Exp1: Simulated reaching task}
 
 A task in a simulated environment was learned first to see whether a NAF neural
-network could learn to move the end-effector (eef) to arbitrarily set goal positions.
+network could learn to move the end-effector (eef) to arbitrarily set goal
+positions given as part of the state.
+
+\section{Method}
+
 \subsection{Environment}
 
-A simulated environment was set up to allow for changing the position of an eef
-by giving 2-d relative movement commands. The area that was considered allowed
-to work within was a $0.15 \times 0.30$ m area and commands sending the eef
-outside this area gave a reward of $-2$. For all other successor states the
-rewards were set to $\exp\left(-1000|\mathbf{x}_e - \mathbf{x}_g|^2\right) - 1$
-where $\mathbf{x}_e$ is the eef pose and $\mathbf{x}_g$ is the goal pose. This
-makes the reward equal $0$ close to the goal and rapidly decay to $-1$ further
-from the goal. Commands with norm larger than $5$ cm were capped. Commands were
-multiplied by a Gaussian noise $\mathcal{N}(1, 0.1^2)$ and the environment was
-reset when reaching the outside of the area or getting within a $1$ cm radius
-of the goal. When resetting the environment, eef and goal poses were randomly
-sampled within the defined area. The goal pose remained the same until the
-environment was reset. After commanding some action on the environment, the
-successor state was returned. This included the new eef pose and the goal pose.
+A very simple simulated environment was used, as described in section
+\ref{sec:method_simulated}, here ignoring the pushable object. This leaves only
+workspace boundaries, and an end-effector that can be controlled by 2D
+cartesian relative movements. The environment capped commands with norm larger
+than $5$ cm. Commands were, in the environment, multiplied by Gaussian noise
+$\mathcal{N}(1, 0.1^2)$ and the environment was reset when reaching the outside
+the workspace or getting within a $1$ cm radius of the goal. When resetting the
+environment, end-effector and goal poses were randomly sampled within the
+workspace. The goal pose remained the same until the environment was reset.
+From the successor state s', the position of the end-effector $\mathbf{e}$, and
+the position of the goal $\mathbf{g}$ were included in calculating the
+reward:
+
+\begin{equation}
+    r(s, a, s'=\lbrace \mathbf{e, g} \rbrace) =
+    \begin{cases}
+        -2 &\text{if } \mathbf{e} \text{ outside workspace}\\
+        \exp\left(-1000|\mathbf{e} - \mathbf{g}|^2\right) - 1 &\text{otherwise}
+    \end{cases}
+\end{equation}
+
+This makes the reward equal $0$ close to the goal and rapidly decay to $-1$
+further from the goal. The scalar $1000$ was chosen because it was seen, by
+plotting the reward function, to be large enough to create a clear peak at the
+goal position, and small enough to avoid having close-to-zero gradients of the
+reward function at other positions in the workspace.
 
 \subsection{Algorithms}
 
-The same layout of the network was used as described in section
-\ref{sec:distributed_naf} with two hidden layers of $100$ outputs each. The
-$\mathbf{\mu}$ output had a $\tanh$ function scaled by $0.1$ as activation. All
-poses were 2-dimensional where eef and goal pose were concatenated as input to
-the network. A discount factor of $0.98$ was used and the Adam optimizer
-\cite{kingma2014adam} was used with learning rate $0.0001$ on a batch size of
-$512$. The replay buffer was sampled from as described in section
-\ref{sec:prio_sampling} with $\alpha = 1$ and $\beta$ in iteration $i$ out of a
-total amount of iterations $i_{tot}$ was set according to:
+A NAF neural network was implemented with the same layout as described in
+section \ref{sec:distributed_naf} with two hidden layers of $100$ units each.
+The two dimensional $\mathbf{\mu}$ output had a $\tanh$ function scaled by $0.05$ as
+activation. All poses were 2D where end-effector and goal pose were
+concatenated as input to the network. A discount factor of $0.98$ was used and
+the Adam optimizer \cite{kingma2014adam} was used with learning rate $0.0001$
+and a batch size of $512$. The replay buffer was sampled from as described in
+section \ref{sec:prio_sampling} with $\alpha = 1$ and $\beta$ in iteration $i$
+out of a total amount of iterations $i_{tot}$ was set according to:
 
 \begin{equation}
     \beta_i = \exp \left( 10(i - i_{tot}) / i_{tot}\right)
@@ -45,18 +61,19 @@ errors. The training process was alternating between generating new experiences
 by interacting with the environment, and between sampling batches from the
 replay buffer to optimize the neural network.
 
-\subsection{Results}
+
+\section{Results}
 
 The algorithm was running for approximately one hour collecting $\approx 100k$
 state transitions. The learned policy and value functions are shown in figure
-\ref{fig:sim_moving_goal}. The implementation, and the NAF formulation, clearly
-solves the task and is able to handle changing goal positions given as a part
-of the state. The value function estimates where less peaky around the goal
-position than expected, but has to do with the formulation of the reward. The
-reward being calculated from successor states, and a single action allowing the
-agent to move $5$ cm, gives a plateau of approximately $5$ cm around the goal
-from where the goal, and the maximum immediate reward, is reachable within one
-action.
+\ref{fig:sim_moving_goal}. The implementation, using the NAF formulation,
+clearly solves the task and is able to handle changing goal positions given as
+a part of the state. The value function estimates where less peaky around the
+goal position than expected, but has to do with the formulation of the reward.
+The reward being calculated from successor states, and a single action allowing
+the agent to move $5$ cm, gives a plateau of approximately $5$ cm around the
+goal from where the goal, and the maximum immediate reward, is reachable within
+one action.
 
 \begin{figure}[h]
     \centering

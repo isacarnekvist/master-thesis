@@ -1,58 +1,48 @@
-\section{Exp2: Robot reaching}
+\chapter{Exp2: Robot reaching}
 
 To investigate whether the previous simulated experiment would generalize to
-real robotic arms, robots were set up to do a reaching task, where a central
-server maintained a replay buffer, parameters, and executed training. Data
-collection was distributed over three robots with respective computers.
+real robotic arms, robots were set up to perform a reaching task, where a
+central server maintained a replay buffer, parameters, and executed training.
+Data collection was distributed over three robots with respective computers.
+
+\section{Method}
 
 \subsection{Algorithms and Equipment}
 
-The same setup as in the previous experiment was used with the distributed
-version of NAF. The policy was trained on a separate server equipped with a
-GPU. Three low-cost robotic arms with three degrees of freedom were used where
-different poses were achieved by setting angles of the three servos. A
-controller and kinematics were implemented and derived in order to measure and
-command poses of the end-effector in cartesian space. For every arm, there was
-one dedicated computer that evaluated the latest policy given
-the arm pose and sent the transitions to the server. The robot with the
-coordinate frame is shown in figure \ref{fig:uarm_coordinate_frame} a) and the
-entire setup (excluding server) is shown in \ref{fig:uarm_coordinate_frame} b).
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.39 \textwidth]{res/uarm_coordinates.pdf}
-    \includegraphics[width=0.59 \textwidth]{res/uarm_moving_setup.png}
-
-    \caption{a) Coordinate frame used. b) The setup of the robot arms along
-    with their dedicated computers.}
-
-    \label{fig:uarm_coordinate_frame}
-    
-\end{figure}
-
-In order to facilitate communication of recorded state transitions and fetching
-updated parameters, a server was implemented enabling PUT and GET requests from
-the local workers.
+The same NAF implementation as in the previous simulated experiment was used,
+but with the modifications for distributed data collection. The same reward
+function as in the first simulated experiment was used. For smoother
+trajectories, the action output $\mu$ of the network was instead scaled by
+$0.01$, making the arm move no more than $1$ cm per iteration. The policy was
+trained on a separate server equipped with a GPU.  Three 3-DoF robotic arms
+controlled by cartesian commands were used. For every arm, there was one
+dedicated computer each that evaluated the latest policy given the arm pose and
+sent the transitions to the server. The entire setup (excluding server) is
+shown in the bottom part of figure \ref{fig:workspace_lidar_place}. In order to
+facilitate communication of recorded state transitions and fetching updated
+parameters, a server was implemented enabling PUT and GET requests from the
+local workers.
 
 \subsection{Data gathering}
 
 Before and after each action was sent to the robot arm, poses of the arm were
 measured. This process could only be done at approx. $2-4$ Hz, not including
-arm re-positioning, making re-runs from scratch time consuming. Therefore, data
-gathering was first run on the three robots for $4$ hours without policy
-updates, resulting in approximately $80k$ state transitions. The actions were
-randomly drawn from $\mathcal{N}(\mathbf{0}, 0.005^2 \mathbf{I})$, and when the
-robot arm reached outside the workspace, or reached within $1$ cm of the
-target, the end-effector was replaced at a new random starting position. The
-commands were 2-dimensional vectors representing the relative movement in $x$
-and $y$ direction respectively. The $z$-coordinate was kept fixed during the
+arm re-positioning for environment reset, making re-runs from scratch time
+consuming. Therefore, data gathering was first run on the three robots for $4$
+hours without policy updates, resulting in approximately $80k$ state
+transitions. The actions during the data collection-only phase were randomly
+drawn from $\mathcal{N}(\mathbf{0}, 0.005^2 \mathbf{I})$, and when the robot
+arm reached outside the workspace, or reached within $1$ cm of the target, the
+end-effector was replaced at a new random starting position. The commands were
+2-dimensional vectors representing the relative movement in $x$ and $y$
+direction respectively. The $z$-coordinate was kept fixed during the
 experiment. When training of the parameters was started on the server, the
 robots kept collecting and pushing data to the server, and synchronized
 parameters before each reset of the end-effector position. During this phase,
 noise was added to the policy during every 3 out of 4 runs, while every 1 out 4
 runs the policy was evaluated without noise in order to track progress.
 
-\subsection{Results}
+\section{Results}
 
 The performance of the policy was evaluated by measuring the average distance
 to the target position on the last state before every reset. The progress of

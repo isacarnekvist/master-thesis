@@ -1,14 +1,14 @@
-\section{Background}
+\chapter{Background}
 \label{sec:background}
 
-\subsection{Reinforcement learning}
+\section{Reinforcement learning}
 
 This entire section is descriptions of key concepts from a book on
 Reinforcement Learning by Sutton and Barto \cite{sutton1998reinforcement}. If
 no other reference is explicitly mentioned, statements are taken from this
 book.
 
-\subsubsection{The three tiers of machine learning}
+\subsection{The three tiers of machine learning}
 
 In reinforcement learning (RL) an agent interacts with an environment and tries
 to maximize how much \textit{reward} it can receive from the environment. To
@@ -21,7 +21,7 @@ and to also try out new things, i.e. \textit{exploration}. These features are
 specific for RL and therefore distinguishes it from supervised and unsupervised
 learning making it the third tier of machine learning.
 
-\subsubsection{Main elements of RL}
+\subsection{Main elements of RL}
 
 Let $S_t$ be the state at time $t$, $R_t$ be the reward at time $t$, and $A_t$
 the action at time $t$. The interaction between an agent and its environment in
@@ -64,7 +64,7 @@ environment, RL algorithms sometimes use a \textit{model} in order to
 explicitly build up an understanding of the environment. This is usually
 referred to as \textit{model-based} RL in contrast to \textit{model-free}.
 
-\subsubsection{Finite Markov Decision Processes}
+\subsection{Finite Markov Decision Processes}
 
 In a RL scenario where the environment has a finite number of states, there is
 a finite number of actions, and the Markov property holds is called a
@@ -100,7 +100,7 @@ action-value function, it is (depending on the problem) easy to infer the
 optimal policy, therefore a common approach is to first approximate either of
 these functions.
 
-\subsubsection{Policy and value iteration}
+\subsection{Policy and value iteration}
 
 One exact method to find the optimal policy, at least in the limit, is called
 \textit{policy iteration}. This builds on two alternating steps, the first
@@ -146,7 +146,7 @@ After convergence to some value function $v$, the optimal policy is found by:
     \pi'(s) = \text{arg}\max_a \sum_{s', r} p(s', r|s, a) \left[r + \gamma v(s')\right]
 \end{equation}
 
-\subsubsection{Monte Carlo methods and Temporal-Difference learning}
+\subsection{Monte Carlo methods and Temporal-Difference learning}
 
 Policy and value iteration are exploring the entire state-action space and
 finds an optimal policy if the dynamics of the environment are known. Sometimes
@@ -170,9 +170,9 @@ finds the optimal policy. The other family of methods is called
 maximized is with respect to the exploring policy. In contrast to this the
 expectation in the off-policy case is only dependent on the environment.
 
-\subsection{Neural networks}
+\section{Neural networks}
 
-\subsubsection{Basic idea}
+\subsection{Basic idea}
 
 The simplest neural network could be considered to be a linear transformation
 of some data points $X$:
@@ -214,7 +214,7 @@ common and effective way to do this is called \textit{back-propagation}
 the input layer and the last layer as the output layer. The intermediate values are
 referred to as hidden layers.
 
-\subsubsection{Common activation functions}
+\subsection{Common activation functions}
 
 Two common activation functions include \textit{tanh} and \textit{Rectified
 Linear Unit} (ReLU) \cite{jarrett2009best} shown in figure \ref{fig:tanh_relu}. The tanh function is defined as:
@@ -273,7 +273,7 @@ categories. The mathematical definition is for a set $x_1, ..., x_K$:
     \label{fig:softmax}
 \end{figure}
 
-\subsubsection{Weight sharing}
+\subsection{Weight sharing}
 
 In order to construct effective models with less number of parameters the fact
 is used that some features are invariant of where in the data they are, e.g.
@@ -295,7 +295,7 @@ convolutions, but instead of kernels with varying weights, a max operation
 \cite{huang2007unsupervised} or average operation \cite{lecun1998gradient} is
 applied (average pooling is a kernel with all weights being equal).
 
-\subsubsection{Optimizers}
+\subsection{Optimizers}
 
 A method commonly used for optimizing neural networks is called Adam
 \cite{kingma2014adam}. Updates to parameters of the function with loss function
@@ -336,7 +336,7 @@ Earlier commonly used methods include Adadelta \cite{zeiler2012adadelta},
 Adagrad \cite{duchi2011adaptive}, and momentum \cite{qian1999momentum}.
 
 
-\subsubsection{Avoiding overfitted networks}
+\subsection{Avoiding overfitted networks}
 
 A classical approach to regularize neural networks is adding a scaled L2-norm
 of the parameters to the loss. Another way shown to be effective, both for
@@ -352,7 +352,7 @@ scaling, translations, noise etc. to the images (e.g.
 approach is to synthetically generate a larger image database by overlaying
 parts of the images with patches of other objects \cite{ghadirzadeh2017deep}.
 
-\subsubsection{Batch normalization}
+\subsection{Batch normalization}
 
 As the weights in one layer changes during training, the following layers have
 to adapt to this change. In fact, later layers constantly have to adopt to
@@ -376,7 +376,7 @@ variance estimates attained during training. Using batch normalization showed
 to decrease the number of training steps by a factor of 14 for some cases, and
 improving the test errors of previous state-of-the-art networks.
 
-\subsection{Problem statement}
+\section{Problem statement}
 
 Manipulation tasks that seem trivial to a human can be hard to learn for
 robots, especially from scratch without initial human demonstration, due to
@@ -386,7 +386,7 @@ scenarios these are non-trivial to find out. Using a camera for pose detection
 has shown promising results but still assumes known camera offset or a fixed
 position of the camera.
 
-\subsection{Research question}
+\section{Research question}
 
 How can deep and distributed reinforcement learning be used for learning and
 performing dynamic manipulation tasks with unknown poses.

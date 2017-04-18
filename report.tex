@@ -1,4 +1,5 @@
-\documentclass[12pt,a4paper,abstract=on,bibliography=totoc]{scrartcl}
+\documentclass{kththesis}
+%\documentclass[12pt,a4paper,abstract=on,bibliography=totoc]{scrartcl}
 \usepackage{cite}
 \usepackage{amsmath}
 \usepackage{hyperref}
@@ -8,28 +9,26 @@
 \usepackage{lmodern}
 \usepackage{amsfonts}
 \usepackage{algorithm,algorithmic}
-\usepackage[swedish,english]{babel}
-\lstset{
-    language=python,
-    breaklines=true,
-    showspaces=false,
-    showstringspaces=false,
-    frame=single,
-    basicstyle=\footnotesize\ttfamily,
-    keywordstyle=\color{blue}\bfseries,
-    stringstyle=\color[rgb]{0.6,0.1,0.1},
-    commentstyle=\color{purple},
-    numbers=left
-}
 
 \title{Reinforcement learning for robotic manipulation}
-\subtitle{Master thesis}
-\author{Isac Arnekvist \\ \texttt{isacar@kth.se} \\ KTH Robotics Perception and Learning lab \\ Supervisor: Johannes A. Stork}
+\alttitle{Reinforcement learning för manipulering med robot}
+\author{Isac Arnekvist}
+\email{isacar@kth.se}
+\supervisor{Johannes A. Stork}
+\examiner{Danica Kragić Jensfelt}
+\programme{Master in Machine Learning}
+\school{School of Computer Science and Communication}
+\date{\today}
 
 \begin{document}
-\maketitle
+\frontmatter
+\titlepage
 \include{abstract}
+
 \tableofcontents
+
+\mainmatter
+
 \include{introduction}
 \include{related}
 \include{background}
@@ -42,6 +41,8 @@
 \include{experiment4}
 \include{experiment5}
 \include{experiment6}
+\include{experiment7}
+\include{experiment8}
 \include{conclusions}
 
 \bibliography{citations}{}

@@ -1,6 +1,6 @@
-\section{Method}
+\chapter{Method}
 
-\subsection{The task and partial goals}
+\section{The task and partial goals}
 
 The final goal, or task, to accomplish was pushing a cube from and to some
 arbitrary positions in the workspace of the robot. The task was researched
@@ -11,23 +11,22 @@ cube state along with the goal. First-order Markov property is assumed together
 with assuming the state as observable, formulating the problem as a Markov
 Decision Process (MDP).
 
-An iterative approach was taken in order to solve the
-task, starting by solving simpler tasks before increasing the complexity. This
-way algorithms are sanity checked in a natural fashion and making limitations
-of model formulations clearer as complexity is added. The first task was to
-investigate appending arbitrary goals to the state for a reaching task with a
-simulated agent and environment. This was later extended to being trained on
-data from distributed real robotic systems. Pushing tasks were then attempted
-in simulation followed by evaluating trained policies on real robots. As a
-second part to this thesis, pose estimation from camera was researched with the
-goal to relax the assumption of a fixed position camera or known offset to the
-camera. This was also done in an iterative fashion starting with a fixed
-position camera and then using simulations to investigate neural network
-capabilities given perfect features. Finally, results regarding pose estimation
-were evaluated on the real robotic systems replacing pose estimates from other
-sensors.
+An iterative approach was taken in order to solve the task, starting by solving
+simpler tasks before increasing the complexity. This way algorithms are sanity
+checked in a natural fashion and making limitations of model formulations
+clearer as complexity is added. The first task was to investigate appending
+arbitrary goals to the state for a reaching task with a simulated agent and
+environment. This was later extended to being trained on data from distributed
+real robotic systems. Pushing tasks were then attempted in simulation followed
+by evaluating trained policies on real robots. As a second part to this thesis,
+pose estimation from camera was researched with the goal to relax the
+assumption of a fixed position camera or known offset to the camera. This was
+also done in an iterative fashion starting with a fixed position camera and
+then using simulations to investigate neural network capabilities given perfect
+features. Finally, trained pose estimation models were evaluated on the real
+robotic systems, replacing pose estimates from other sensors.
 
-\subsection{Robotic environment}
+\section{Robotic environment}
 \label{sec:robo_env}
 
 Low cost robotic arms (uArm Metal) were used along with a dedicated computer,
@@ -62,10 +61,10 @@ implemented controller on top that could command the end-effector to some
 cartesian coordinates. The arms have 4 degrees of freedom, but only three were
 used in this thesis, ignoring the end-effector rotation servo. The arms were
 shipped with controllers and forward/inverse kinematics but were not reliable,
-therefore new derivations of the kinematics were done along with a new
+therefore a new derivation of the kinematics was done along with a new
 controller implementation.
 
-\subsubsection{Inverse kinematics derivation}
+\subsection{Inverse kinematics derivation}
 
 Definition of landmarks and distances can be seen in figure
 \ref{fig:uarm_landmarks}. We are given the coordinates of the point $D$ and
@@ -89,10 +88,9 @@ is first simply found by:
     \theta = \text{arctan2}(y, x)
 \end{equation}
 
-The problem can then be simplified by considering the 2D problem where the
-origin is placed at $A$, consider $C$ instead of $D$ which is easily found, in
-the 2D plane defined by the points $A, B, C$. Denote the coordinates of $C$ in
-this new frame as:
+The problem can then be simplified by only considering the 2D plane defined by
+the points $A, B, C$, where the origin is placed at $A$.  Denote the
+coordinates of $C$ in this new frame as:
 
 \begin{equation}
     r = \sqrt{x^2 + y^2} - d_2 - d_3
@@ -129,12 +127,13 @@ which implies:
     \beta = \frac{\pi}{2} - ABC - (\alpha - \frac{\pi}{2}) = \pi - ABC - \alpha
 \end{equation}
 
-\subsection{Simulated environment}
+\section{Simulated environment}
+\label{sec:method_simulated}
 
 A simple 2D environment was implemented with a circular pushable object, and a
-point-like manipulator. Actions was sent to the environment as relative
+point-like manipulator. Actions were sent to the environment as relative
 movement of the manipulator. The environment does not take friction into
-account, only moving the pushable object the minimum distance so that the
+account, only moving the pushable object the minimum distance such that the
 manipulator never exists within the object boundaries. Positions of goal,
 manipulator, and object could be sampled according to different sampling
 strategies, in the full problem each position is sampled uniformly within the
@@ -156,7 +155,8 @@ object is simply ignored.
     \label{fig:env_sim_samples}
 \end{figure}
 
-\subsection{Estimating the cube position using LIDAR}
+\section{Estimating the cube position using LIDAR}
+\label{sec:method_hough}
 
 A LIDAR was used to estimate the position of the cube. These estimates were
 both used as ground truth for training pose estimation neural networks, and
@@ -180,41 +180,34 @@ values, i.e. pixels form a line along the parameterized line.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.40\textwidth]{res/hough.pdf}
-
-    \caption{The Hough transform returns scalar values for a set of lines each
-    parameterized by some $\theta$ and $d$. In this figure the red line is
-    parameterized by the angle $\theta$ and distance $d$.}
-
-    \label{fig:hough}
-\end{figure}
-
-The angles with corresponding distance measures from the LIDAR are converted to
-cartesian space and plotted onto a matrix (Hough transform input), an example
-is shown in figure \ref{fig:hough_example} where the black pixels correspond to
-LIDAR scans. After applying the transform on this image, the line with the
-highest corresponding scalar value is chosen, in figure \ref{fig:hough_example}
-shown as the red line. One of the cube's sides can then be estimated using this
-line, limited by the outermost scans lying approximately on this line, see red
-dots in figure \ref{fig:hough_example}. The center of the cube, which is
-$4\times 4\times 4$ cm, is then estimated by adding the orthogonal vector of
-length $2$ cm from the center of the estimated cube side (shown as blue dot).
-Only the center of the cube was used for the experiments, although the full
-pose of the cube is easily inferred from the found line.
-
-\begin{figure}[h]
-    \centering
+    \includegraphics[width=0.39\textwidth]{res/hough.pdf}
     \includegraphics[width=0.60\textwidth]{res/hough_example.pdf}
 
-    \caption{LIDAR scans are plotted onto a binary matrix. The parameters with
+    \caption{Left: The Hough transform returns scalar values for a set of lines each
+    parameterized by some $\theta$ and $d$. In this figure the red line is
+    parameterized by the angle $\theta$ and distance $d$.
+    Right: LIDAR scans are plotted onto a binary matrix. The parameters with
     the maximum output from the Hough transform corresponds to the red line.
     The side of the cube is estimated by taking the outermost scans
     approximately lying on this line. The center of the cube is then found by
     adding an orthogonal vector from the center of this side with length
     corresponding to half of the cube size.}
 
-    \label{fig:hough_example}
+    \label{fig:hough}
 \end{figure}
+
+The angles with corresponding distance measures from the LIDAR are converted to
+cartesian space and plotted as ones onto a matrix of zeros (Hough transform
+input), an example is shown in figure \ref{fig:hough} where the black pixels
+correspond to LIDAR scans. After applying the transform on this image, the line
+with the highest corresponding scalar value is chosen, in figure
+\ref{fig:hough} shown as the red line. One of the cube's sides can then be
+estimated using this line, limited by the outermost scans lying approximately
+on this line, see red dots in figure \ref{fig:hough}. The center of the cube,
+which is $4\times 4\times 4$ cm, is then estimated by adding the orthogonal
+vector of length $2$ cm from the center of the estimated cube side (shown as
+blue dot). Only the center of the cube was used for the experiments, although
+the full pose of the cube is easily inferred from the found line.
 
 The scans from the LIDAR showed variation between sweeps resulting in
 variations in the pose estimates. This can be seen in figure
@@ -239,7 +232,7 @@ solution to lowering errors but implies slower updates of the pose estimation.
     \label{fig:lidar_noise}
 \end{figure}
 
-\subsection{Software and libraries}
+\section{Software and libraries}
 
 For high-level computational graphs, Keras \cite{chollet2015keras} was used.
 For lower-level extensions not supported by Keras, Theano was used

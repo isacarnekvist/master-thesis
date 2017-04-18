@@ -1,4 +1,4 @@
-\section{Exp4: Pushing task in simulation II}
+\chapter{Exp4: Pushing task in simulation II}
 
 To not enforce any constraints on the shape of the Q-function, experiments were
 done with Deep Deterministic Policy Gradient (DDPG) where the Q-function can be
@@ -6,11 +6,13 @@ approximated by any differentiable function without any theoretical constraints
 (see section \ref{sec:ddpg}). Also, simplifications regarding translations, and
 rotations, of the problem were taken advantage of.
 
+\section{Method}
+
 \subsection{Environment}
 
 The environment was in the basic aspects the same as for the experiments in
 section \ref{sec:push_sim_1}. The reward was however changed and consisted of
-three parts:
+three terms:
 
 \begin{equation}
     r(s, u, s') = k_1 \left(\mathbf{||c - g|| - ||c' - g||}\right) + k_2 \exp \lbrace -k_3 ||c' - g|| \rbrace + k_4 \exp \lbrace -k_5||e' - c'||\rbrace
@@ -38,7 +40,6 @@ environment were interpreted in this new coordinate frame.
     \label{fig:ddpg-coordinates}
 
 \end{figure}
-
 
 \subsection{Algorithms}
 
@@ -75,12 +76,12 @@ estimating the return from sampled start states by regularly executing a set of
 trials in the environment.
 
 NAF was evaluated alongside DDPG with a separate replay buffer and environment
-but with the same procedure otherwise. Several runs with NAF were done with
+and with the same procedure as for DDPG. Several runs with NAF were done with
 different sizes of hidden layers, using batch normalization, and changing to
 ELU activations. The NAF experiments did however not succeed to show any signs
 of converging at a good policy, and further results with NAF are omitted here.
 
-\subsection{Results}
+\section{Results}
 
 Good policies were found after approximately $30'000$ iterations, shown in
 figure \ref{fig:ddpg-sim-pushing-pi-v} and \ref{fig:ddpg-sim-pushing-series}.
