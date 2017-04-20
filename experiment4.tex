@@ -1,26 +1,59 @@
-\chapter{Exp4: Pushing task in simulation II}
+\chapter{Pushing II: DDPG on a modified problem}
 
-To not enforce any constraints on the shape of the Q-function, experiments were
-done with Deep Deterministic Policy Gradient (DDPG) where the Q-function can be
-approximated by any differentiable function without any theoretical constraints
-(see section \ref{sec:ddpg}). Also, simplifications regarding translations, and
-rotations, of the problem were taken advantage of.
+Previous experiments showed that reaching different goals within the workspace
+can be learned both in simulation and on real robotic systems. Increasing the
+complexity of the task by introducing an object to push to these goal positions
+however could not be solved. One hypothesis is that the task has a clear
+multi-modal nature which does not suit the quadratic shape of the advantage
+function in the NAF formulation well. To not enforce any constraints on the
+shape of the Q-function, experiments were done with Deep Deterministic Policy
+Gradient (DDPG) where the Q-function can be approximated by any differentiable
+function without any theoretical constraints (see section \ref{sec:ddpg}).
+Also, simplifications regarding translations, and rotations, of the problem
+were taken advantage of.
 
 \section{Method}
+
+\subsection{Definition of the MDP}
+
+The MDP definition is the same as the previous simulated pushing task, except
+for the reward function. The reason for the change of the reward function was
+to include a positive reward for a positive change in the state.
+The reward was as before defined from the state of the end-effector
+$\mathbf{e}$ and the object $\mathbf{c}$, with the addition of including both
+the former state and the successor state denoted by $'$. The goal $\mathbf{g}$,
+once again, was constant before and after actions.
+\begin{align*}
+    r(\mathbf{e, c, g, e, c'}) = &k_1 \left(\mathbf{||c - g|| - ||c' - g||}\right) + \\
+        &k_2 \exp \lbrace -k_3 ||\mathbf{c' - g}|| \rbrace + \\
+        &k_4 \exp \lbrace -k_5||\mathbf{e' - c'}||\rbrace
+\end{align*}
+Constants are listed in table \ref{table:ddpg-pushing-constants}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|r}
+        $k_1$ & 1000.0 \\
+        \hline
+        $k_2$ & 1.0 \\
+        \hline
+        $k_3$ & 1000.0 \\
+        \hline
+        $k_4$ & 0.1 \\
+        \hline
+        $k_5$ & 200.0
+    \end{tabular}
+
+    \caption{Constants used in the reward function for pushing in simulation.}
+
+    \label{table:ddpg-pushing-constants}
+
+\end{table}
 
 \subsection{Environment}
 
 The environment was in the basic aspects the same as for the experiments in
-section \ref{sec:push_sim_1}. The reward was however changed and consisted of
-three terms:
-
-\begin{equation}
-    r(s, u, s') = k_1 \left(\mathbf{||c - g|| - ||c' - g||}\right) + k_2 \exp \lbrace -k_3 ||c' - g|| \rbrace + k_4 \exp \lbrace -k_5||e' - c'||\rbrace
-\end{equation}
-
-The vectors $\mathbf{e, c}$ and $\mathbf{g}$ are inferred from the state $s$
-and are the poses of the end-effector, pushable object, and the goal. The prime
-notation represents the successor state. To simplify the task for the learning
+section \ref{sec:push_sim_1}. However, to simplify the task for the learning
 agent, the state representation and action space was changed to become rotation
 and translation invariant. The environment was translated so that the pushable
 object was positioned at the origin, and rotated so that the goal position lies

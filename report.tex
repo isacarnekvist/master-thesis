@@ -1,11 +1,13 @@
 \documentclass{kththesis}
 %\documentclass[12pt,a4paper,abstract=on,bibliography=totoc]{scrartcl}
 \usepackage{cite}
+\usepackage{tabularx}
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{subfigure}
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{lscape}
 \usepackage{lmodern}
 \usepackage{amsfonts}
 \usepackage{pdfpages}
@@ -23,6 +25,8 @@
 
 \begin{document}
 \includepdf{cover_front.pdf}
+\newpage
+\thispagestyle{empty}
 \frontmatter
 \titlepage
 \include{abstract}
@@ -32,8 +36,8 @@
 \mainmatter
 
 \include{introduction}
-\include{related}
 \include{background}
+\include{related}
 
 \include{method}
 

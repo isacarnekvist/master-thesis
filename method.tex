@@ -1,5 +1,14 @@
 \chapter{Method}
 
+I present in the following sections a high-level description of the process,
+followed by describing environments, derivations, tools, and equipment.
+
+\section{Research question}
+
+How can deep and distributed reinforcement learning be used for learning and
+performing dynamic manipulation tasks in a stochastic environment with unknown
+poses.
+
 \section{The task and partial goals}
 
 The final goal, or task, to accomplish was pushing a cube from and to some
@@ -8,35 +17,42 @@ using a reinforcement learning approach, only specifying the wanted behavior by
 defining a reward function $f(s, a, s') \in \mathbb{R}$, where $s, a, s'$ is
 the state, action, and successor state. The state here includes the robot and
 cube state along with the goal. First-order Markov property is assumed together
-with assuming the state as observable, formulating the problem as a Markov
-Decision Process (MDP).
+with assuming the state as observable, even if observed with uncertainty in a
+higher dimensional space, formulating the problem as a Markov Decision Process
+(MDP). This process is modeled with discrete time steps, with the state space
+being the 2D coordinates in a horizontal plane of the robot end-effector,
+center of the cube, and the goal position. The action space is continuous and
+consists of bounded 2D relative movement of the end-effector.
 
-An iterative approach was taken in order to solve the task, starting by solving
-simpler tasks before increasing the complexity. This way algorithms are sanity
-checked in a natural fashion and making limitations of model formulations
-clearer as complexity is added. The first task was to investigate appending
-arbitrary goals to the state for a reaching task with a simulated agent and
-environment. This was later extended to being trained on data from distributed
-real robotic systems. Pushing tasks were then attempted in simulation followed
-by evaluating trained policies on real robots. As a second part to this thesis,
-pose estimation from camera was researched with the goal to relax the
-assumption of a fixed position camera or known offset to the camera. This was
-also done in an iterative fashion starting with a fixed position camera and
-then using simulations to investigate neural network capabilities given perfect
-features. Finally, trained pose estimation models were evaluated on the real
-robotic systems, replacing pose estimates from other sensors.
+An iterative approach was taken in the process of solving the task, starting by
+solving simpler tasks before increasing the complexity. This way algorithms are
+sanity checked in a natural fashion and making limitations of model
+formulations clearer as complexity is added. The first task was to investigate
+appending arbitrary goals to the state for a reaching task with a simulated
+agent and environment. This was later extended to being trained on data from
+distributed real robotic systems. Pushing tasks were then attempted in
+simulation followed by evaluating trained policies on real robots. As a second
+part to this thesis, pose estimation from camera was researched with the goal
+to relax the assumption of a fixed position camera or known offset to the
+camera. This was also done iteratively starting with a fixed
+position camera and then using simulations to investigate neural network
+capabilities given perfect features. Finally, trained pose estimation models
+were evaluated on the real robotic systems, replacing pose estimates from other
+sensors.
 
 \section{Robotic environment}
 \label{sec:robo_env}
 
-Low cost robotic arms (uArm Metal) were used along with a dedicated computer,
-and a \textit{LIght Detection And Range}-device (LIDAR) for pose estimation of
-the cube. For pose estimation from camera, an RGB-camera with an optional
-RGB-aligned depth channel was used. A workspace for the entire setup was
-defined to be $x \in [-0.1, 0.1]$, $y \in [0.1, 0.3]$ (meters), both for the
-reaching and pushing task. The coordinate frame used is shown in figure
-\ref{fig:workspace_lidar_place} (top left), along with the placement of the
-LIDAR and camera (top right).
+Low cost robotic arms (uArm Metal) with reported repeatability of $\pm 5$ mm
+and noisy sensors were used. The robot arms were used along with a dedicated
+computer, and a \textit{LIght Detection And Range}-device (LIDAR) for pose
+estimation of the cube. The LIDAR also return noisy distance estimates,
+described in more detail in section \ref{sec:method_hough}. For pose estimation
+from camera, an RGB-camera with an optional RGB-aligned depth channel was used.
+A workspace for the entire setup was defined to be $x \in [-0.1, 0.1]$, $y \in
+[0.1, 0.3]$ (meters), both for the reaching and pushing task. The coordinate
+frame used is shown in figure \ref{fig:workspace_lidar_place} (top left), along
+with the placement of the LIDAR and camera (top right).
 
 \begin{figure}[h]
     \centering
@@ -57,18 +73,19 @@ LIDAR and camera (top right).
 \end{figure}
 
 The arms were in this thesis controlled by commanding servo angles, with an
-implemented controller on top that could command the end-effector to some
-cartesian coordinates. The arms have 4 degrees of freedom, but only three were
-used in this thesis, ignoring the end-effector rotation servo. The arms were
-shipped with controllers and forward/inverse kinematics but were not reliable,
+implemented controller on top for commanding the end-effector to some cartesian
+coordinates. The arms have 4 degrees of freedom, but only three were used in
+this thesis, ignoring the end-effector rotation servo. The arms were shipped
+with controllers and forward/inverse kinematics but were not reliable,
 therefore a new derivation of the kinematics was done along with a new
 controller implementation.
 
 \subsection{Inverse kinematics derivation}
 
-Definition of landmarks and distances can be seen in figure
-\ref{fig:uarm_landmarks}. We are given the coordinates of the point $D$ and
-want to find to angles $\alpha$, $\beta$, and $\theta$.
+In order to implement a controller for cartesian movement of the arm, inverse
+kinematics of the robot were derived. Definition of landmarks and distances can
+be seen in figure \ref{fig:uarm_landmarks}. We are given the coordinates of the
+point $D$ and want to find to angles $\alpha$, $\beta$, and $\theta$.
 
 \begin{figure}[!ht]
     \centering
@@ -108,7 +125,7 @@ $C$ from $A$ as $\gamma$. This is found by:
     \gamma = \text{arctan2}(h, r)
 \end{equation}
 
-All sides of the triangle $ABC$ are known, so the angles are found by the rule (applied in the same fashion to all angles):
+All sides of the triangle $ABC$ are known, so the angles are found by the rule (applied in the same way to all angles):
 
 \begin{equation}
     \cos(BAC) = \frac{d_{AB}^2 + d_{AC}^2 - d_{BC}^2}{2 d_{AB} d_{AC}}
@@ -130,8 +147,10 @@ which implies:
 \section{Simulated environment}
 \label{sec:method_simulated}
 
-A simple 2D environment was implemented with a circular pushable object, and a
-point-like manipulator. Actions were sent to the environment as relative
+In order to do faster evaluations of algorithms, and constructing more ideal
+environments with less noise etc., simulation experiments were also done. For
+this, a simple 2D environment was implemented with a circular pushable object,
+and a point-like manipulator. Actions were sent to the environment as relative
 movement of the manipulator. The environment does not take friction into
 account, only moving the pushable object the minimum distance such that the
 manipulator never exists within the object boundaries. Positions of goal,

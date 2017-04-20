@@ -1,12 +1,44 @@
 \chapter{Introduction}
 
+\section{Motivation}
+
+This thesis aims to investigate how to enable a robot to learn autonomous
+interaction with an object so that some goal is accomplished. Given complete
+knowledge of the environment we can often handcraft solutions that work well.
+However, as environments vary from one task to another and might even be
+intractable to model explicitly, especially in the presence of stochastic
+elements, a more general learning approach is motivated. Knowledge we have
+about a certain task enables us to argue about the shortcomings and successes
+of a learning agent, and a task for which we have plenty of insights, such as
+pushing an object to a target position, is therefore motivated. A pushing task
+having a multi-modal nature, in conjunction with real-world noisy controls and
+high-dimensional noisy sensor input still makes this a challenging task even
+though the task in a higher-level sense is relatively simple.
+
+\section{Machine Learning}
+
+Machine Learning is the scientific branch dealing with algorithms that can
+learn tasks like classification, regression, finding latent structure,
+performing tasks etc. In a growing number of domains, algorithms have recently
+been superceding, or nearing human level performance, e.g. image classification
+\cite{krizhevsky2012imagenet,he2016deep}, playing board
+\cite{silver2016mastering} and video games \cite{mnih2013playing}, and speech
+recognition \cite{hinton2012deep,dahl2012context}. This has been made possible
+due to several reasons such as efficient algorithms, better hardware, a surge
+in the amount of data, etc. Despite recent advancements, many tasks that seem
+trivial to humans are continually hard for computers to learn e.g. household
+chores like doing dishes, washing, and cooking.
+
 \section{Robotic manipulation}
 
-Reinforcement Learning (RL) deals with learning what actions to do in order to
-reach a long-term goal (a \textit{policy} is learned) and have been widely used
-for learning robotic manipulation tasks. Recent research suggests methods
-capable of learning real-world robotic manipulation tasks without simulation
-pre-training, learning only from real-world experience
+Reinforcement Learning (RL) is the branch of Machine Learning that deals with
+learning what actions to do in order to reach a long-term goal and have been
+widely used for learning robotic manipulation tasks. Models capable of learning
+these tasks often need large amounts of possibly unsafe interactions with the
+environment in order to be learned. These tasks are therefore commonly trained
+in simulation rather than on real robotic systems. Recent research suggests
+methods capable of learning real-world robotic manipulation tasks without
+simulation pre-training, learning only from real-world experience
 \cite{yahya2016collective,gu2016deep,finn2016deep,chebotar2016path}. Using
 visual feedback for manipulation tasks is a way to handle unknown poses of
 manipulators and target objects, and training these kind of tasks end-to-end
@@ -24,31 +56,31 @@ this might not always be available. Recently a successful demonstration of
 learning a door opening task from scratch without the need for human
 demonstration or simulation pre-training have been shown \cite{gu2016deep}.
 This was using a version of Normalized Advantage Function algorithms (NAF)
-\cite{gu2016continuous} distributed over several robotic platforms.
+\cite{gu2016continuous} distributed over several robotic platforms. While NAF
+on a door-opening task was shown to outperform Deep Deterministic Policy
+Gradient (DDPG) \cite{gu2016deep,lillicrap2015continuous}, the formulation
+however assumes a uni-modal shape of the advantage function, while other
+methods such as DDPG does not have any restrictions on the functions that can
+be represented.
+
+\section{Problem statement}
+
+Manipulation tasks that seem trivial to a human can be hard to learn for
+robots, especially from scratch without initial human demonstration, due to
+high sample complexity. Recent research suggests ways to do this but are often
+based on that you know the poses of the objects and the end-effector. For some
+scenarios these are non-trivial to find out. Using a camera for pose detection
+has shown promising results but still assumes known camera offset or a fixed
+position of the camera.
 
 \section{This study}
 
-NAF have been successful on real-world manipulation tasks, without the need of
-human demonstration in contrast to recent research on similar tasks using
-Guided Policy Search (GPS) \cite{yahya2016collective}. NAF was also shown to
-outperform Deep Deterministic Policy Gradient (DDPG)
-\cite{gu2016deep,lillicrap2015continuous}. The formulation of NAF however
-assumes a uni-modal shape of the advantage function, while other methods such as
-DDPG does not have any restrictions on the functions that can be represented.
 In this thesis, a series of experiments were conducted showing that NAF can
 learn simpler policies on a distributed real-world robotic setup. However, a
 pushing task with a clear multi-modal nature here fails to be learned using NAF
 both in a real-world setting, and in simulation. DDPG on the other hand learns
-a good policy in simulation and the learned policy is successfully transferred
+a good policy in simulation, and the learned policy is successfully transferred
 to the real robotic setup. Pose estimation was done using a CNN in accordance
 with previous work \cite{levine2016end,chebotar2016path,yahya2016collective}
 and further extended to evaluate whether a proposed pose estimation network can
 handle random camera poses.
-
-\section{Motivation}
-
-Positive results could imply further automation of manipulation tasks where
-relative poses of robots, sensors, and targets are unknown. Using a CNN that
-estimates relative poses and that is robust to translations could be
-interesting also for researchers and industry beyond the robotics use case as
-in this thesis.

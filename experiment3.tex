@@ -1,41 +1,56 @@
-\chapter{Exp3: Pushing task in simulation I}
+\chapter{Pushing I: Making NAF sweat}
 \label{sec:push_sim_1}
 
-The next task was to push a square cube into some target position using
-the real robot arm, however preliminary experiments using NAF did not
-converge to an intuitively good policy. Instead of rejecting the capabilities
-of the NAF algorithm at this stage, simulation experiments were first done in
-a more ideally set up environment.
+Previous experiments showed that using NAF, a policy can be learned both in
+simulation and on real robots to perform a reaching task to arbitrarily set
+goal positions within the workspace. Extending this, we want to investigate
+whether an object can be pushed to these goal positions. Preliminary
+experiments on the real robotic systems on a cube pushing task using NAF did
+however not converge to an intuitively good policy. To further investigate the
+capabilities of the NAF algorithm under more controlled circumstances,
+simulation experiments were first done.
 
 \section{Method}
 
+\subsection{Definition of the MDP}
+
+The set of states
+\begin{equation}
+    S \subset \mathbb{R}^2 \times \mathbb{R}^2 \times \mathbb{R}^2
+\end{equation}
+was extended by including the center position of a pushable, circular, object.
+The set of actions was defined in the same way as previous experiments. The
+state transitions are now not as straightforward to describe as in the
+simulated reaching task since they depend on a physics model, albeit a simple
+one, for moving the object after contact with the simulated end-effector. The
+object was modeled to have no velocity, and since this is the case, a state
+only including positions still satisfies the Markov property.
+
+The reward was defined from the state of the end-effector $\mathbf{e}$ and the
+object $\mathbf{c}$, both in the successor state. The goal $\mathbf{g}$ was constant
+before and after actions:
+\begin{equation}
+    r(\mathbf{e, c, g}) = \exp ( -k_1 ||\mathbf{e - c}||) + \exp (-k_2 ||\mathbf{c - g}|| )
+\end{equation}
+During the experiments, several values were tried for $k_1$ and $k_2$.
 
 \subsection{Environment}
 
-The environment consisted of a circular object to push into some goal position
-and a simulated, point-like end-effector. To simplify the problem, locations of
-the pushable object and goal were sampled approximately at the same position at
-every reset. This was in order to ignore rotations and translations of the
-problem and only examine whether the algorithm could learn this simpler
-scenario. In particular, there was a concern that when the end-effector has to
-go 180 degrees around the object, a clear multi-modal solution exists and might
-be problematic due to the quadratic shape of the advantage function. To further
-make this point clear, moving the end-effector clockwise around the pushable
-object, or counter-clockwise, are equally good. But staying at the same
-position, or even worse moving towards the object pushing the object further
-from the goal, lowers the return. Clearly, this has a multi-modal nature, with
-one mode being going around the object clockwise, and the other going
-counter-clockwise.
-
-The simulated end-effector was sampled uniformly in the entire workspace. The
-reward was defined as:
-
-\begin{equation}
-    r(s, a, s'=\lbrace \mathbf{e, c, g} \rbrace) = \exp ( -k_1 ||\mathbf{e - c}||) + \exp (-k_2 ||\mathbf{c - g}|| )
-\end{equation}
-
-Here, $\mathbf{e, c}$ and $\mathbf{g}$ are the poses of the end-effector, the
-pushable circle, and the goal position.
+The environment consisted of the circular object to push into some goal
+position, and a simulated, point-like end-effector. To simplify the problem,
+locations of the pushable object and goal were sampled approximately at the
+same position at every reset. This was in order to ignore rotations and
+translations of the problem and only examine whether the algorithm could learn
+this simpler scenario. The simulated end-effector was sampled uniformly in the
+entire workspace. There was at this stage a concern that when the end-effector
+has to go 180 degrees around the object, a clear multi-modal solution exists
+and might be problematic due to the quadratic shape of the advantage function.
+To further make this point clear, moving the end-effector clockwise around the
+pushable object, or counter-clockwise, are equally good.  But staying at the
+same position, or even worse moving towards the object pushing the object
+further from the goal, lowers the return. Clearly, this has a multi-modal
+nature, with one mode being going around the object clockwise, and the other
+going counter-clockwise. 
 
 \subsection{Algorithms}
 

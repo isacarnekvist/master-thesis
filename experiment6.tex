@@ -1,12 +1,15 @@
-\chapter{Exp6: Pose estimation from a fixed camera}
+\chapter{Pose estimation I: Using a fixed camera}
 
-Using the LIDAR for pose estimation of the cube required that no other objects
-were accidentally measured, and used the fact that the position of the cube can
-be described by a bounded line in the plane. A more general approach is to infer
-the pose from a camera. A usual setup in robotics is to have a camera at a
-fixed position and infer poses under the assumption that the camera does not
-shift position. Experiments are here first described for estimation under this
-assumption and then extended for estimation from a non-fixed camera.
+The policy trained in simulation for pushing a cube to some goal position was
+shown to work on the real robotic system with only some minor tweaks.  To know
+where the cube was positioned, a LIDAR was used.  Using the LIDAR for pose
+estimation of the cube however required that no other objects were accidentally
+measured, and used the fact that the position of the cube can be described by a
+bounded line in the plane. A more general approach is to infer the pose from a
+camera. A usual setup in robotics is to have a camera at a fixed position and
+infer poses under the assumption that the camera does not shift position.
+Experiments are here first described for estimation under this assumption and
+then extended for estimation from a non-fixed camera.
 
 \section{Method}
 

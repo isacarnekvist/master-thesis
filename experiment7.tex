@@ -1,10 +1,17 @@
-\chapter{Exp7: Relative pose estimation from synthetic data}
+\chapter{Pose estimation II: Relative pose from synthetic data}
 
-In order to estimate the pose of some object in some coordinate frame, the
-offset of the camera with respect to this frame must be known, or that some
-feature in the input data defines this coordinate frame. Simulated experiments
-were first done in order to investigate whether relative poses of two objects
-can be inferred from 2D projections of those 3D points.
+We now know that a neural network can extract 2D image coordinates of some
+features and use these to infer poses in some other coordinate frame.  This is
+however under the assumption that the camera position is constant with respect
+to the target coordinate frame. We have also seen that this estimation is
+reliable enough to perform the pushing task using the resulting cube pose
+estimates. What if we could extract 2D image locations of features but the
+camera position is unknown and changing? If some features in the image defines
+a coordinate frame that are accessible to us, then an algorithm should
+theoretically be able to infer these poses in this coordinate frame as long as
+those features are visible. For the following experiment, we assume that we
+know the projected 2D locations of some features in 3D space, where the 2D plane
+is randomly placed.
 
 \section{Method}
 \label{subsec:sim_moving}
