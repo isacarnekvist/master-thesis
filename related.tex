@@ -49,9 +49,9 @@ and was shown to half the performance. The neural network is shown in figure
 \begin{landscape}
     \begin{table}
         \centering
-        \begin{tabular}{|l|p{1.3cm}|l|p{4cm}|l|p{6cm}|}
+        \begin{tabular}{|l|p{1.3cm}|l|p{4cm}|p{3cm}|p{6.5cm}|}
             \hline
-            \textbf{Algorithm} & \textbf{Actor/ Critic} & \textbf{-policy} & \textbf{Possible limitations} & \textbf{Deterministic} & \textbf{Empirical results} \\
+            \textbf{Algorithm} & \textbf{Actor/ Critic} & \textbf{-policy} & \textbf{Possible limitations} & \textbf{Deterministic action output} & \textbf{Empirical results} \\
             \hline
             NAF \cite{gu2016continuous} & No & Off & Quadratic advantage function & Yes & Real-world trained door opening without human demonstration where it performed better than DDPG \\
             \hline
@@ -64,7 +64,7 @@ and was shown to half the performance. The neural network is shown in figure
         \end{tabular}
 
     \caption{Comparison between different reinforcement learning algorithms
-    used for robotic manipulation tasks.}
+    used for robotic manipulation tasks. }
 
     \end{table}
     \label{table:algo_comparison}

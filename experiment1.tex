@@ -32,7 +32,7 @@ most succinctly described in two parts, the first part being the function
 giving a successor end-effector position $\mathbf{e}'$ given previous position
 $\mathbf{e}$ and action $\mathbf{a}$:
 \begin{equation}
-    \mathbf{e}' = \epsilon(\mathbf{e} + a), \epsilon \sim \mathcal{N}(1, 0.1^2)
+    \mathbf{e}' = \epsilon(\mathbf{e} + \mathbf{a}), \epsilon \sim \mathcal{N}(1, 0.1^2)
 \end{equation}
 The goal $\mathbf{g}$ is constant during an episode which for formal
 completeness is stated:
@@ -59,14 +59,14 @@ The discount factor $\gamma$ was defined to be equal to $0.98$.
 
 A very simple simulated environment was used, as described in section
 \ref{sec:method_simulated}, here ignoring the pushable object. This leaves only
-workspace boundaries, and an end-effector that can be controlled by 2D
-cartesian relative movements. The environment capped commands with norm larger
-than $5$ cm. Commands were, in the environment, multiplied by Gaussian noise
+workspace boundaries and an end-effector that can be controlled by 2D cartesian
+relative movements. The environment capped commands with norm larger than $5$
+cm. Commands were, in the environment, multiplied by Gaussian noise
 $\mathcal{N}(1, 0.1^2)$ according the MDP definition, and the environment was
-reset when reaching the outside the workspace or getting within a $1$ cm radius
-of the goal. When resetting the environment, end-effector and goal poses were
-randomly sampled within the workspace. The goal pose remained the same until
-the environment was reset.
+reset when reaching the outside of the workspace or getting within a $1$ cm
+radius of the goal. When resetting the environment, end-effector and goal poses
+were randomly sampled within the workspace. The goal pose remained the same
+until the environment was reset.
 
 \subsection{Algorithms}
 
@@ -100,7 +100,7 @@ successful policy were not defined, rather training was run until plots of the
 policy showed to move the end-effector towards the goal position from all
 directions.
 
-\section{Results}
+\section{Results \& Discussion}
 
 The algorithm was running for approximately one hour collecting $\approx 100k$
 state transitions. The learned policy and value functions are shown in figure

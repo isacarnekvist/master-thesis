@@ -68,7 +68,7 @@ and a one and two hidden layer model with 100 hidden ELU-activated units and
 batch normalization, and including or excluding depth information. The loss was
 mean squared error and the networks were trained using the Adam optimizer.
 
-\section{Results}
+\section{Results \& Discussion}
 
 As can be seen in figure \ref{fig:pose-sim-losses} and \ref{fig:pose-sim-corr},
 deeper networks achieve better results. 2D coordinates were also shown to be
@@ -93,18 +93,19 @@ convolutional neural network, and also where labels are produced with noise.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.2 \textwidth]{res/pose_sim_depth_linear.pdf}
-    \includegraphics[width=0.2 \textwidth]{res/pose_sim_nodepth_2hidden.pdf}
-    \includegraphics[width=0.2 \textwidth]{res/pose_sim_depth_1hidden.pdf}
-    \includegraphics[width=0.2 \textwidth]{res/pose_sim_depth_2hidden.pdf}
+    \includegraphics[width=0.49 \textwidth]{res/pose_sim_depth_linear.pdf}
+    \includegraphics[width=0.49 \textwidth]{res/pose_sim_nodepth_2hidden.pdf}
+    \includegraphics[width=0.49 \textwidth]{res/pose_sim_depth_1hidden.pdf}
+    \includegraphics[width=0.49 \textwidth]{res/pose_sim_depth_2hidden.pdf}
 
     \caption{Pose estimation from a simulated environment and camera. Target
-    $x$ (green) and target $y$ (blue) values plotted against the predicted
-    $x$ and $y$ values.  Plot 1: Depth information was provided to the two
-    points on the robot and the cube. Network was only a linear layer. Plot 2:
-    Only 2D coordinates were given as inputs, network had 2 hidden layers.
-    Plot 3: Depth was given, network using 1 hidden layer.  Plot 4: Depth was
-    given, network using 2 hidden layers.}
+    $x$ (green) and target $y$ (blue) values (horizontal axis) plotted against
+    the predicted $x$ and $y$ values (vertical axis).  Plot 1: Depth
+    information was provided to the two points on the robot and the cube.
+    Network was only a linear layer. Plot 2: Only 2D coordinates were given as
+    inputs, network had 2 hidden layers.  Plot 3: Depth was given, network
+    using 1 hidden layer.  Plot 4: Depth was given, network using 2 hidden
+    layers.}
 
     \label{fig:pose-sim-corr}
     

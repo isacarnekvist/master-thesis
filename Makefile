@@ -4,7 +4,7 @@ view: build
 	open report.pdf
 
 publish: build
-	cp report.pdf /Volumes/user/isac/Dropbox/thesis-papers/latest-draft.pdf
+	cp report.pdf /Volumes/user/isac/Dropbox/thesis-papers/isac_arnekvist.pdf
 
 bib:
 	bibtex report

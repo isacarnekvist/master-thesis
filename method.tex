@@ -34,11 +34,30 @@ distributed real robotic systems. Pushing tasks were then attempted in
 simulation followed by evaluating trained policies on real robots. As a second
 part to this thesis, pose estimation from camera was researched with the goal
 to relax the assumption of a fixed position camera or known offset to the
-camera. This was also done iteratively starting with a fixed
-position camera and then using simulations to investigate neural network
-capabilities given perfect features. Finally, trained pose estimation models
-were evaluated on the real robotic systems, replacing pose estimates from other
-sensors.
+camera. This was also done iteratively starting with a fixed position camera
+and then using simulations to investigate neural network capabilities given
+perfect features. Finally, trained pose estimation models were evaluated on the
+real robotic systems, replacing pose estimates from other sensors. The exact
+steps could of course not be known in advance, but would depend on the partial
+results. An overview of the final approach and the overall steps are shown
+diagrammatically in figure \ref{fig:process-diagram}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.80 \textwidth]{res/process-diagram.pdf}
+
+    \caption{Diagram of the working process. The first part was to investigate
+    setting arbitrary goals and appending those as a part of the state, first
+    in simulation and then on the real robotic system. Next, complexity is
+    added by attempting to solve the pushing task. Attempts were made in
+    simulation, and then finally on the real robots. Final part was pose
+    estimation, starting with a fixed position camera. For random and unknown
+    camera positions, an ideal setup was first experimented with in simulation
+    and then extending it to autonomous feature extraction and inference from
+    RGB images.}
+
+    \label{fig:process-diagram}
+\end{figure}
 
 \section{Robotic environment}
 \label{sec:robo_env}
